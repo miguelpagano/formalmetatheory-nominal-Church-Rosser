@@ -1,8 +1,10 @@
 \begin{code}
-module Permutation where
+open import Relation.Binary.Definitions
+open import Relation.Binary.PropositionalEquality hiding ([_])
 
-open import Atom
-open import Term
+module Permutation (Atom : Set) (_≟ₐ_ : Decidable {A = Atom} _≡_) where
+open import AtomAbs Atom _≟ₐ_
+open import Term Atom _≟ₐ_
 
 open import Level
 open import Relation.Nullary
@@ -10,12 +12,12 @@ open import Relation.Binary
 open import Data.Empty
 open import Data.List
 open import Data.List.Properties
-open import Data.List.Any as Any hiding (map)
-open import Data.List.Any.Properties
-open import Data.List.Any.Membership
-open Any.Membership-≡ renaming (_∈_ to _∈'_;_∉_ to _∉'_) 
 open import Data.Product
 open import Data.Nat
+open import Data.List.Relation.Unary.Any as Any hiding (map)
+open import Data.List.Relation.Unary.Any.Properties
+open import Data.List.Membership.Propositional
+open import Data.List.Membership.Propositional.Properties
 open import Relation.Binary.PropositionalEquality as PropEq hiding ([_])
 open PropEq.≡-Reasoning renaming (begin_ to begin≡_;_∎ to _◻)
 open import Algebra
@@ -23,10 +25,10 @@ open import Algebra.Structures
 
 infixr 4 _∙_
 
-Π = List (Atom × Atom)  
+Π = List (Atom × Atom)
 --
 ι : List Atom
-ι = [] 
+ι = []
 --
 _⁻¹ : Π → Π
 _⁻¹ = reverse
@@ -37,14 +39,14 @@ _⁻¹ = reverse
 %<*atomPermutation>
 \begin{code}
 _∙ₐ_ : Π → Atom → Atom
-π ∙ₐ a = foldr (λ s b → （ proj₁ s ∙ proj₂ s ）ₐ b) a π 
+π ∙ₐ a = foldr (λ s b → （ proj₁ s ∙ proj₂ s ）ₐ b) a π
 \end{code}
 %</atomPermutation>
 
 %<*permutation>
 \begin{code}
 _∙_ : Π → Λ → Λ
-π ∙ M = foldr (λ s M → （ proj₁ s ∙ proj₂ s ） M) M π 
+π ∙ M = foldr (λ s M → （ proj₁ s ∙ proj₂ s ） M) M π
 \end{code}
 %</permutation>
 
@@ -57,56 +59,55 @@ lemmaπ∙π′∙M≡π++π′∙M {[]}           {π′} {M} = refl
 lemmaπ∙π′∙M≡π++π′∙M {(a , b) ∷ π}  {π′} {M} = cong (（_∙_）_ a b) (lemmaπ∙π′∙M≡π++π′∙M {π})
 --
 corollaryPπ++π′∙M→Pπ∙π′∙M : ∀ {π M} → {l : Level}{P : Λ → Set l} → ∀ π′ → P ((π′ ++ π) ∙ M) → P (π′ ∙ π ∙ M)
-corollaryPπ++π′∙M→Pπ∙π′∙M {π} {M} {P} π′ Pπ′++πM 
-  rewrite lemmaπ∙π′∙M≡π++π′∙M {π′} {π} {M} = Pπ′++πM 
+corollaryPπ++π′∙M→Pπ∙π′∙M {π} {M} {P} π′ Pπ′++πM
+  rewrite lemmaπ∙π′∙M≡π++π′∙M {π′} {π} {M} = Pπ′++πM
 --
 lemmaπ⁻¹∘π≡id : {π : Π}{M : Λ} →  (π ⁻¹ ∙ π ∙ M) ≡ M
 lemmaπ⁻¹∘π≡id {[]}           {M} = refl
-lemmaπ⁻¹∘π≡id {(a , b) ∷ π}  {M} 
+lemmaπ⁻¹∘π≡id {(a , b) ∷ π}  {M}
   = begin≡
-      ((a , b) ∷ π) ⁻¹ ∙ ((a , b) ∷ π) ∙ M 
+      ((a , b) ∷ π) ⁻¹ ∙ ((a , b) ∷ π) ∙ M
     ≡⟨ refl ⟩
-      ((a , b) ∷ π) ⁻¹ ∙ （ a ∙ b ） (π ∙ M) 
+      ((a , b) ∷ π) ⁻¹ ∙ （ a ∙ b ） (π ∙ M)
     ≡⟨ cong (λ t → t ∙ （ a ∙ b ） (π ∙ M)) (unfold-reverse (a , b) π)  ⟩
-      π ⁻¹ ++ [ (a , b) ] ∙ （ a ∙ b ） (π ∙ M) 
+      π ⁻¹ ++ [ (a , b) ] ∙ （ a ∙ b ） (π ∙ M)
     ≡⟨ refl ⟩
-      π ⁻¹ ++ [ (a , b) ] ∙ [ (a , b) ] ∙ (π ∙ M) 
+      π ⁻¹ ++ [ (a , b) ] ∙ [ (a , b) ] ∙ (π ∙ M)
     ≡⟨  lemmaπ∙π′∙M≡π++π′∙M {π ⁻¹ ++ [ (a , b) ]} ⟩
-      (π ⁻¹ ++ [ (a , b) ]) ++ [ (a , b) ] ∙ (π ∙ M) 
+      (π ⁻¹ ++ [ (a , b) ]) ++ [ (a , b) ] ∙ (π ∙ M)
     ≡⟨ cong (λ t → t ∙ (π ∙ M)) (++-assoc (π ⁻¹)  [ (a , b) ] [ (a , b) ]) ⟩
-      π ⁻¹ ++ ([ (a , b) ] ++ [ (a , b) ]) ∙ (π ∙ M) 
+      π ⁻¹ ++ ([ (a , b) ] ++ [ (a , b) ]) ∙ (π ∙ M)
     ≡⟨ refl ⟩
-      π ⁻¹ ++ ( (a , b) ∷ (a , b) ∷ []) ∙ (π ∙ M) 
+      π ⁻¹ ++ ( (a , b) ∷ (a , b) ∷ []) ∙ (π ∙ M)
     ≡⟨ sym (lemmaπ∙π′∙M≡π++π′∙M {π ⁻¹})  ⟩
-      π ⁻¹  ∙ （ a ∙ b ） （ a ∙ b ） (π ∙ M) 
+      π ⁻¹  ∙ （ a ∙ b ） （ a ∙ b ） (π ∙ M)
     ≡⟨ cong (λ t → π ⁻¹  ∙ t) lemma（ab）（ab）M≡M ⟩
       π ⁻¹  ∙ π ∙ M
     ≡⟨ lemmaπ⁻¹∘π≡id {π} {M} ⟩
       M
     ◻
-  where ++-assoc = IsSemigroup.assoc (IsMonoid.isSemigroup (Monoid.isMonoid (monoid (Atom × Atom))))
 --
 lemmaπ∙∣∣ : {M : Λ}{π : Π} → ∣ π ∙ M ∣ ≡ ∣ M ∣
 lemmaπ∙∣∣ {M} {[]} = refl
-lemmaπ∙∣∣ {M} {(a , b) ∷ π}  
+lemmaπ∙∣∣ {M} {(a , b) ∷ π}
   = begin≡
-        ∣ ((a , b) ∷ π) ∙ M ∣ 
+        ∣ ((a , b) ∷ π) ∙ M ∣
       ≡⟨ refl ⟩
-        ∣ （ a ∙ b ） (π ∙ M) ∣ 
+        ∣ （ a ∙ b ） (π ∙ M) ∣
       ≡⟨ lemma∙∣∣ {π ∙ M}  ⟩
-        ∣ π ∙ M ∣ 
+        ∣ π ∙ M ∣
       ≡⟨ lemmaπ∙∣∣ {M} {π} ⟩
         ∣ M ∣
-    ◻ 
+    ◻
 --
 lemmaπ∙∣∣≤ : {M : Λ}{π : Π} → ∣ π ∙ M ∣ ≤′ ∣ M ∣
 lemmaπ∙∣∣≤ {M} {π} rewrite lemmaπ∙∣∣ {M} {π} = ≤′-refl
 --
 lemmaπv : {a : Atom}{π : Π} → (π ∙ (v a)) ≡  v (π ∙ₐ a)
 lemmaπv {a} {[]}     = refl
-lemmaπv {a} {(b , c) ∷ π}  
+lemmaπv {a} {(b , c) ∷ π}
   =  begin≡
-        ((b , c) ∷ π ∙ v a) 
+        ((b , c) ∷ π ∙ v a)
       ≡⟨ refl ⟩
         （ b ∙ c ） (π ∙ v a)
       ≡⟨ cong (（_∙_）_ b c) (lemmaπv {a} {π}) ⟩
@@ -117,49 +118,49 @@ lemmaπv {a} {(b , c) ∷ π}
 --
 lemmaπ· : {M N : Λ}{π : Π} → (π ∙ (M · N)) ≡ (π ∙ M) · (π ∙ N)
 lemmaπ· {M} {N} {[]} = refl
-lemmaπ· {M} {N} {(a , b) ∷ π} 
+lemmaπ· {M} {N} {(a , b) ∷ π}
   = begin≡
-      ((a , b) ∷ π) ∙ (M · N) 
-    ≡⟨ refl ⟩ 
+      ((a , b) ∷ π) ∙ (M · N)
+    ≡⟨ refl ⟩
       （ a ∙ b ） (π ∙ (M · N))
-    ≡⟨ cong (（_∙_）_ a b) (lemmaπ· {M} {N} {π}) ⟩ 
+    ≡⟨ cong (（_∙_）_ a b) (lemmaπ· {M} {N} {π}) ⟩
       （ a ∙ b ） ((π ∙ M) · (π ∙ N))
-    ≡⟨ refl ⟩ 
+    ≡⟨ refl ⟩
 
       (((a , b) ∷ π) ∙ M) · (((a , b) ∷ π) ∙ N)
     ◻
 --
 lemmaπƛ : {a : Atom}{M : Λ}{π : Π} → (π ∙ (ƛ a M)) ≡ ƛ (π ∙ₐ a) (π ∙ M)
 lemmaπƛ {a} {M} {[]} = refl
-lemmaπƛ {a} {M} {(b , c) ∷ π} 
+lemmaπƛ {a} {M} {(b , c) ∷ π}
  = begin≡
-     ((b , c) ∷ π) ∙ ƛ a M  
+     ((b , c) ∷ π) ∙ ƛ a M
    ≡⟨ refl ⟩
      （ b ∙ c ） (π ∙ ƛ a M)
-   ≡⟨ cong (（_∙_）_ b c) (lemmaπƛ {a} {M} {π}) ⟩ 
+   ≡⟨ cong (（_∙_）_ b c) (lemmaπƛ {a} {M} {π}) ⟩
      （ b ∙ c ） (ƛ (π ∙ₐ a)  (π ∙ M))
    ≡⟨ refl ⟩
      ƛ (((b , c) ∷ π) ∙ₐ a) (((b , c) ∷ π) ∙ M)
    ◻
 --
-lemmaπ∙ₐ≡ : {a : Atom}{π : Π} → a ∉' atoms π → π ∙ₐ a ≡ a
+lemmaπ∙ₐ≡ : {a : Atom}{π : Π} → a ∉ atoms π → π ∙ₐ a ≡ a
 lemmaπ∙ₐ≡ {a} {[]}           a∉π  = refl
-lemmaπ∙ₐ≡ {a} {(b , c) ∷ π}  a∉b,c∷π 
-  rewrite lemmaπ∙ₐ≡ {a} {π} (λ a∈π → a∉b,c∷π (there (there a∈π))) 
-  with a ≟ₐ b 
+lemmaπ∙ₐ≡ {a} {(b , c) ∷ π}  a∉b,c∷π
+  rewrite lemmaπ∙ₐ≡ {a} {π} (λ a∈π → a∉b,c∷π (there (there a∈π)))
+  with a ≟ₐ b
 ... | no _ with a ≟ₐ c
 ...        | no _                 = refl
-lemmaπ∙ₐ≡ {a} {(b , .a) ∷ π}  a∉b,a∷π 
-    | no _ | yes refl             
+lemmaπ∙ₐ≡ {a} {(b , .a) ∷ π}  a∉b,a∷π
+    | no _ | yes refl
     = ⊥-elim (a∉b,a∷π (there (here refl)))
-lemmaπ∙ₐ≡ {a} {(.a , c) ∷ π}  a∉a,c∷π   
-    | yes refl                    
+lemmaπ∙ₐ≡ {a} {(.a , c) ∷ π}  a∉a,c∷π
+    | yes refl
     = ⊥-elim (a∉a,c∷π (here refl))
 --
 lemmaπ∙distributive : {a b : Atom}{M : Λ}{π : Π} → (π ∙ （ a ∙ b ） M) ≡ (（ π ∙ₐ a ∙ π ∙ₐ b ） (π ∙ M))
 lemmaπ∙distributive {a} {b} {M} {[]} = refl
-lemmaπ∙distributive {a} {b} {M} {(c , d) ∷ π} 
-  rewrite lemmaπ∙distributive {a} {b} {M} {π}  
+lemmaπ∙distributive {a} {b} {M} {(c , d) ∷ π}
+  rewrite lemmaπ∙distributive {a} {b} {M} {π}
   |       lemma∙distributive {c} {d} {π ∙ₐ a} {π ∙ₐ b} {π ∙ M}
   = refl
 --

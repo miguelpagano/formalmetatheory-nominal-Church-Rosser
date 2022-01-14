@@ -2,9 +2,7 @@
 open import Relation.Binary.Definitions
 open import Relation.Binary.PropositionalEquality
 
-module AtomAbs (Carrier : Set) (_≟ₐ_ : Decidable {A = Carrier} _≡_) where
-
-Atom = Carrier
+module AtomAbs (Atom : Set) (_≟ₐ_ : Decidable {A = Atom} _≡_) where
 
 open import Data.Nat
 open import Data.Product renaming (_×_ to _∧_)

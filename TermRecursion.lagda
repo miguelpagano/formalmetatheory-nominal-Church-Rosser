@@ -1,14 +1,15 @@
 \begin{code}
-module TermRecursion where
+open import Relation.Binary.Definitions
+open import Relation.Binary.PropositionalEquality hiding ([_])
 
-open import Atom
-open import Term 
+module TermRecursion (Atom : Set) (_≟ₐ_ : Decidable {A = Atom} _≡_) where
+
+open import Term Atom _≟ₐ_
 open import Alpha
-open import TermAcc
-open import Chi
+open import TermAcc Atom _≟ₐ_
 open import ListProperties
-open import TermInduction
-open import Permutation
+-- open import TermInduction
+open import Permutation Atom _≟ₐ_
 
 open import Level
 open import Data.Nat
@@ -16,7 +17,8 @@ open import Data.Nat.Properties
 open import Function
 open import Data.List 
 open import Data.List.Any as Any hiding (map)
-open Any.Membership-≡
+open import Data.List.Membership.Propositional
+open import Data.List.Membership.Propositional.Properties
 open import Data.Product
 open import Relation.Binary.PropositionalEquality as PropEq hiding ([_])
 open PropEq.≡-Reasoning renaming (begin_ to begin≡_;_∎ to _□)

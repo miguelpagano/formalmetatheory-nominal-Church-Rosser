@@ -14,20 +14,17 @@ open import Relation.Binary
 open import Relation.Binary.PropositionalEquality as PropEq renaming ([_] to [_]ᵢ) 
 open import Data.List hiding (any) renaming (length to length') 
 open import Data.List.Properties
-open import Data.List.Any as Any hiding (map)
-open import Data.List.Any.Membership
-open import Data.List.Any.Properties
-open Any.Membership-≡ renaming (_∈_ to _∈[]_;_∉_ to _∉[]_) 
+open import Data.List.Relation.Unary.Any as Any hiding (map)
+open import Data.List.Relation.Unary.Any.Properties
+open import Data.List.Membership.Propositional
+open import Data.List.Membership.Propositional.Properties
 open import Algebra.Structures
 open import Relation.Binary
 --
-n+0≡n   = IsCommutativeMonoid.identityˡ (IsCommutativeSemiring.*-isCommutativeMonoid isCommutativeSemiring)
-+-comm  = IsCommutativeMonoid.comm (IsCommutativeSemiring.+-isCommutativeMonoid isCommutativeSemiring)
-total   = IsTotalOrder.total (IsDecTotalOrder.isTotalOrder (DecTotalOrder.isDecTotalOrder decTotalOrder))
 --
 V = ℕ
 --
-f<s : (x : V)(xs : List V) → x ∈[] xs → ((y : V) → y < x → y ∈[] xs) → (y : V) → y < (suc x) → y ∈[] xs
+f<s : (x : V)(xs : List V) → x ∈ xs → ((y : V) → y < x → y ∈[] xs) → (y : V) → y < (suc x) → y ∈[] xs
 f<s x xs x∈xs f< y sucy≤sucx with ≤⇒≤′ sucy≤sucx
 f<s x xs x∈xs f< .x _ | ≤′-refl            = x∈xs
 f<s x xs x∈xs f< y  _ | ≤′-step sucy<'sucx = f< y (≤′⇒≤ sucy<'sucx)

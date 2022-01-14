@@ -1,9 +1,10 @@
 \begin{code}
 module Types where
+open import Data.Nat as Nat hiding (_⊔_;_*_)
 
-open import Atom
-open import ListProperties
-open import Chi
+open import AtomAbs ℕ _≟_
+-- open import ListProperties
+-- open import Chi
 open import NaturalProperties
 open import Term hiding (fv)
 open import Relation hiding (_⊆_;_++_)
