@@ -4,7 +4,7 @@ open import Relation.Binary.PropositionalEquality hiding ([_])
 
 module Alpha (Atom : Set) (_≟ₐ_ : Decidable {A = Atom} _≡_) where
 
-open import Term  Atom _≟ₐ_
+open import Term Atom _≟ₐ_
 open import AtomAbs  Atom _≟ₐ_
 open import Equivariant Atom _≟ₐ_
 open import Permutation Atom _≟ₐ_
@@ -23,6 +23,8 @@ open import Data.List.Relation.Unary.Any.Properties
 open import Data.List.Membership.Propositional
 open import Data.List.Membership.Propositional.Properties
 open import Relation.Binary.PropositionalEquality as PropEq hiding ([_])
+open import Data.List.Relation.Binary.Subset.Propositional
+open import Data.List.Relation.Binary.Subset.Propositional.Properties  hiding (++⁺ˡ;++⁺ʳ)
 
 infix 3 _∼α_ _≈α_
 
@@ -56,17 +58,17 @@ lemma∼αEquiv .{ƛ a M}  .{ƛ b N}    π (∼αƛ {M} {N} {a} {b} xs p)
                                               π ∙ （ a ∙ c ） M
                                             ≡⟨ lemmaπ∙distributive {a} {c} {M} {π} ⟩
                                               （ π ∙ₐ a ∙ π ∙ₐ c ） (π ∙ M)
-                                            ≡⟨ cong (λ H → （ π ∙ₐ a ∙ H ） (π ∙ M)) (lemmaπ∙ₐ≡ {c} {π} (c∉xs++ys→c∉ys {xs = xs} c∉xs++π)) ⟩
+                                            ≡⟨ cong (λ H → （ π ∙ₐ a ∙ H ） (π ∙ M)) (lemmaπ∙ₐ≡ {c} {π} (∉-++⁻ʳ xs c∉xs++π)) ⟩
                                               （ π ∙ₐ a ∙ c ） (π ∙ M)
                                             □ )
                                          (  begin≡
                                               π ∙ （ b ∙ c ） N
                                             ≡⟨ lemmaπ∙distributive {b} {c} {N} {π} ⟩
                                               （ π ∙ₐ b ∙ π ∙ₐ c ） (π ∙ N)
-                                            ≡⟨ cong (λ H → （ π ∙ₐ b ∙ H ） (π ∙ N)) (lemmaπ∙ₐ≡ {c} {π} (c∉xs++ys→c∉ys {xs = xs} c∉xs++π)) ⟩
+                                            ≡⟨ cong (λ H → （ π ∙ₐ b ∙ H ） (π ∙ N)) (lemmaπ∙ₐ≡ {c} {π} (∉-++⁻ʳ xs c∉xs++π)) ⟩
                                               （ π ∙ₐ b ∙ c ） (π ∙ N)
                                             □ )
-                                         (lemma∼αEquiv π (p c (c∉xs++ys→c∉xs c∉xs++π))) ))
+                                         (lemma∼αEquiv π (p c (∉-++⁻ˡ xs c∉xs++π)))))
 --
 lemma∼αƛ : {a : Atom}{M N : Λ} → M ∼α N → ƛ a M ∼α ƛ a N
 lemma∼αƛ {a} {M} {N} M∼αN = ∼αƛ [] (λ c c∉[] → lemma∼αEquiv [(a , c)] M∼αN)
@@ -79,7 +81,7 @@ lemma∼αƛ← {a} (∼αƛ xs f) = subst₂  (λ H P → H ∼α P)
   where
   b = χ' xs
   b∉xs = lemmaχ∉ xs
---
+-- --
 ρ : Reflexive _∼α_
 ρ {v a}    = ∼αv
 ρ {M · N}  = ∼α· ρ ρ
@@ -96,8 +98,8 @@ lemma∼αƛ← {a} (∼αƛ xs f) = subst₂  (λ H P → H ∼α P)
 τ (∼αƛ xs p) (∼αƛ xs′ p′)
   = ∼αƛ  (xs ++ xs′)
         (λ c c∉xs++xs′ →
-                         τ  (p   c (c∉xs++ys→c∉xs c∉xs++xs′))
-                            (p′  c (c∉xs++ys→c∉ys {c} {xs} c∉xs++xs′)))
+                         τ  (p   c (∉-++⁻ˡ xs c∉xs++xs′))
+                            (p′  c (∉-++⁻ʳ xs c∉xs++xs′)))
 --
 lemma≡→∼ : {M N : Λ} → M ≡ N → M ∼α N
 lemma≡→∼ refl = ρ
@@ -113,7 +115,7 @@ lemma≡→∼ refl = ρ
         reflexive = λ { {M} {.M} refl → ρ};
         trans = τ } }
 
-import Relation.Binary.PreorderReasoning as PreR
+import Relation.Binary.Reasoning.Preorder as PreR
 open PreR ≈-preorder public
 --
 lemma∙cancel∼α :  {a b c : Atom}{M : Λ} → b # M → c # M →
@@ -164,37 +166,42 @@ lemma∙cancel∼α {a} {b} {.b} {ƛ .b M} b#λdM  #ƛ≡       | no a≢b | no 
 lemma∙cancel∼α {a} {b} {c} {ƛ .b M} b#λdM   (#ƛ c#M)  | no a≢b | no a≢c | no b≢c
   | yes refl
   rewrite lemma∙ₐ（ab）b≡a {a} {b} | lemma∙ₐc≢a∧c≢b (sym≢ a≢b) b≢c | lemma∙ₐ（ab）b≡a {c} {b}
-  = ∼αƛ (a ∷ b ∷ c ∷ ocurr M) (λ  e e∉abc∷ocurrM → lemma（ce）（cb）（ac）M∼α（ae）（ab）M e e∉abc∷ocurrM)
+  = ∼αƛ (a ∷ b ∷ c ∷ Λ-atoms M) (λ  e e∉abc∷atomsM → lemma（ce）（cb）（ac）M∼α（ae）（ab）M e e∉abc∷atomsM)
   where
-  lemma（ce）（cb）（ac）M∼α（ae）（ab）M : (e : Atom) → e ∉ a ∷ b ∷ c ∷ ocurr M → （ c ∙ e ） （ c ∙ b ） （ a ∙ c ） M ∼α （ a ∙ e ） （ a ∙ b ） M
-  lemma（ce）（cb）（ac）M∼α（ae）（ab）M  e e∉abc∷ocurrM
+  lemma（ce）（cb）（ac）M∼α（ae）（ab）M : (e : Atom) → e ∉ a ∷ b ∷ c ∷ Λ-atoms M → （ c ∙ e ） （ c ∙ b ） （ a ∙ c ） M ∼α （ a ∙ e ） （ a ∙ b ） M
+  lemma（ce）（cb）（ac）M∼α（ae）（ab）M  e e∉abc∷atomsM
     = begin
          （ c ∙ e ） （ c ∙ b ） （ a ∙ c ） M
        ≈⟨ lemma∙distributive {c} {e} {c} {b} {（ a ∙ c ） M} ⟩
          （ （ c ∙ e ）ₐ c ∙ （ c ∙ e ）ₐ b ） （ c ∙ e ） （ a ∙ c ） M
        ≈⟨ cong (λ x → （ x ∙ （ c ∙ e ）ₐ b ） （ c ∙ e ） （ a ∙ c ） M) (lemma∙ₐ（ab）a≡b {c} {e}) ⟩
          （ e ∙ （ c ∙ e ）ₐ b ） （ c ∙ e ） （ a ∙ c ） M
-       ≈⟨ cong (λ x → （ e ∙ x ） （ c ∙ e ） （ a ∙ c ） M) (lemma∙ₐc≢a∧c≢b b≢c (sym≢ (d∉abc∷xs→d≢b e∉abc∷ocurrM))) ⟩
+       ≈⟨ cong (λ x → （ e ∙ x ） （ c ∙ e ） （ a ∙ c ） M) (lemma∙ₐc≢a∧c≢b b≢c (sym≢ (∉-∷⁼ b∈abc∷atomsM e∉abc∷atomsM))) ⟩
          （ e ∙ b ） （ c ∙ e ） （ a ∙ c ） M
-       ∼⟨ lemma∼αEquiv [( e , b)] (lemma∙cancel∼α {a} {e} {c} (lemma∉→# {e} {M} (lemmaocurr (d∉abc∷xs→d∉xs e∉abc∷ocurrM))) c#M) ⟩
+       ∼⟨ lemma∼αEquiv [( e , b)] (lemma∙cancel∼α {a} {e} {c} (lemma∉→# {e} {M} (lemmaΛ-atoms e∉atomsM)) c#M) ⟩
          （ e ∙ b ） （ a ∙ e ）  M
-       ≈⟨ sym (cong (λ x → （ e ∙ x ） （ a ∙ e ） M) (lemma∙ₐc≢a∧c≢b (sym≢ a≢b) (sym≢ (d∉abc∷xs→d≢b e∉abc∷ocurrM)))) ⟩
+       ≈⟨ sym (cong (λ x → （ e ∙ x ） （ a ∙ e ） M) (lemma∙ₐc≢a∧c≢b (sym≢ a≢b) (sym≢ (∉-∷⁼ b∈abc∷atomsM e∉abc∷atomsM)))) ⟩
          （ e ∙ （ a ∙ e ）ₐ b ） （ a ∙ e ）  M
        ≈⟨ sym (cong (λ x → （ x ∙ （ a ∙ e ）ₐ b ） （ a ∙ e ）  M) (lemma∙ₐ（ab）a≡b {a} {e})) ⟩
          （ （ a ∙ e ）ₐ a ∙ （ a ∙ e ）ₐ b ） （ a ∙ e ）  M
        ≈⟨ sym (lemma∙distributive {a} {e} {a} {b} {M}) ⟩
          （ a ∙ e ） （ a ∙ b ） M
        ∎
+   where b∈abc∷atomsM : b ∈ a ∷ b ∷ c ∷ Λ-atoms M
+         b∈abc∷atomsM = there (here refl)
+         e∉atomsM : e ∉ Λ-atoms M
+         e∉atomsM = ∉-++⁻ʳ (a ∷ b ∷ c ∷ []) e∉abc∷atomsM
+
 lemma∙cancel∼α {a} {b} {c} {ƛ d M} b#λdM c#λdM | no a≢b | no a≢c | no b≢c
   | no b≢d with c ≟ₐ d
 lemma∙cancel∼α {a} {b} {.b} {ƛ .b M} #ƛ≡ c#λcM      | no a≢b | no a≢d | no _ | no b≢b
   | yes refl = ⊥-elim (b≢b refl)
 lemma∙cancel∼α {a} {b} {c} {ƛ .c M} (#ƛ b#M) c#λcM  | no a≢b | no a≢c | no _ | no b≢c
   | yes refl rewrite lemma∙ₐ（ab）b≡a {a} {c} | lemma∙ₐc≢a∧c≢b a≢c a≢b | lemma∙ₐc≢a∧c≢b (sym≢ a≢c) (sym≢ b≢c)
-  = ∼αƛ (a ∷ b ∷ c ∷ ocurr M) (λ e e∉abc∷ocurrM → lemma（ae）（cb）（ac）M∼α（ce）（ab）M e e∉abc∷ocurrM)
+  = ∼αƛ (a ∷ b ∷ c ∷ Λ-atoms M) (λ e e∉abc∷atomsM → lemma（ae）（cb）（ac）M∼α（ce）（ab）M e e∉abc∷atomsM)
   where
-  lemma（ae）（cb）（ac）M∼α（ce）（ab）M : (e : Atom) → e ∉ a ∷ b ∷ c ∷ ocurr M → （ a ∙ e ） （ c ∙ b ） （ a ∙ c ） M ∼α （ c ∙ e ） （ a ∙ b ） M
-  lemma（ae）（cb）（ac）M∼α（ce）（ab）M e e∉abc∷ocurrM
+  lemma（ae）（cb）（ac）M∼α（ce）（ab）M : (e : Atom) → e ∉ a ∷ b ∷ c ∷ Λ-atoms M → （ a ∙ e ） （ c ∙ b ） （ a ∙ c ） M ∼α （ c ∙ e ） （ a ∙ b ） M
+  lemma（ae）（cb）（ac）M∼α（ce）（ab）M e e∉abc∷atomsM
     =  begin
          （ a ∙ e ） （ c ∙ b ） （ a ∙ c ） M
        ≈⟨ cong (λ x → （ a ∙ e ） x) (lemma∙distributive {c} {b} {a} {c} {M}) ⟩
@@ -207,25 +214,30 @@ lemma∙cancel∼α {a} {b} {c} {ƛ .c M} (#ƛ b#M) c#λcM  | no a≢b | no a≢
          （ （ a ∙ e ）ₐ a ∙ （ a ∙ e ）ₐ b ） （ a ∙ e ） （ c ∙ b ）  M
        ≈⟨ cong (λ x → （ x ∙ （ a ∙ e ）ₐ b ） （ a ∙ e ） （ c ∙ b ）  M) (lemma∙ₐ（ab）a≡b {a} {e})  ⟩
          （ e ∙ （ a ∙ e ）ₐ b ） （ a ∙ e ） （ c ∙ b ）  M
-       ≈⟨ cong (λ x → （ e ∙ x ） （ a ∙ e ） （ c ∙ b ）  M) (lemma∙ₐc≢a∧c≢b (sym≢ a≢b) (sym≢ (d∉abc∷xs→d≢b e∉abc∷ocurrM)))  ⟩
+       ≈⟨ cong (λ x → （ e ∙ x ） （ a ∙ e ） （ c ∙ b ）  M) (lemma∙ₐc≢a∧c≢b (sym≢ a≢b) ((sym≢ (∉-∷⁼ b∈abc∷atomsM e∉abc∷atomsM))))  ⟩
          （ e ∙ b ） （ a ∙ e ） （ c ∙ b ）  M
        ≈⟨ lemma∙distributive {e} {b} {a} {e} {（ c ∙ b ）  M}  ⟩
          （ （ e ∙ b ）ₐ a ∙ （ e ∙ b ）ₐ e ） （ e ∙ b ）  （ c ∙ b ）  M
-       ≈⟨ cong (λ x → （ x ∙ （ e ∙ b ）ₐ e ） （ e ∙ b ）  （ c ∙ b ）  M) (lemma∙ₐc≢a∧c≢b (sym≢ (d∉abc∷xs→d≢a e∉abc∷ocurrM)) a≢b)   ⟩
+       ≈⟨ cong (λ x → （ x ∙ （ e ∙ b ）ₐ e ） （ e ∙ b ）  （ c ∙ b ）  M) (lemma∙ₐc≢a∧c≢b (sym≢ ((∉-∷⁼ (here refl) e∉abc∷atomsM))) a≢b)   ⟩
          （ a ∙ （ e ∙ b ）ₐ e ） （ e ∙ b ）  （ c ∙ b ）  M
        ≈⟨ cong (λ x → （ a ∙ x ） （ e ∙ b ）  （ c ∙ b ）  M) (lemma∙ₐ（ab）a≡b {e} {b})  ⟩
          （ a ∙ b ） （ e ∙ b ）  （ c ∙ b ）  M
        ≈⟨ cong (λ x → （ a ∙ b ） x) (lemma∙comm {e} {b} {（ c ∙ b ）  M })  ⟩
          （ a ∙ b ） （ b ∙ e ）  （ c ∙ b ）  M
-       ∼⟨ lemma∼αEquiv [(a , b)] (lemma∙cancel∼α {c} {e} {b} {M} (lemma∉→# {e} {M} (lemmaocurr (d∉abc∷xs→d∉xs e∉abc∷ocurrM))) b#M) ⟩
+       ∼⟨ lemma∼αEquiv [(a , b)] (lemma∙cancel∼α {c} {e} {b} {M} (lemma∉→# {e} {M} (lemmaΛ-atoms e∉atomsM)) b#M) ⟩
          （ a ∙ b ） （ c ∙ e ）  M
-       ≈⟨ sym (cong (λ x → （ a ∙ x ） （ c ∙ e ）  M) (lemma∙ₐc≢a∧c≢b b≢c (sym≢ (d∉abc∷xs→d≢b e∉abc∷ocurrM)))) ⟩
+       ≈⟨ sym (cong (λ x → （ a ∙ x ） （ c ∙ e ）  M) (lemma∙ₐc≢a∧c≢b b≢c ((sym≢ (∉-∷⁼ b∈abc∷atomsM e∉abc∷atomsM))))) ⟩
          （ a ∙ （ c ∙ e ）ₐ b ） （ c ∙ e ）  M
-       ≈⟨ sym (cong (λ x → （ x ∙ （ c ∙ e ）ₐ b ） （ c ∙ e ）  M) (lemma∙ₐc≢a∧c≢b a≢c (sym≢ (d∉abc∷xs→d≢a e∉abc∷ocurrM)))) ⟩
+       ≈⟨ sym (cong (λ x → （ x ∙ （ c ∙ e ）ₐ b ） （ c ∙ e ）  M) (lemma∙ₐc≢a∧c≢b a≢c (sym≢ (∉-∷⁼ (here refl) e∉abc∷atomsM)))) ⟩
          （ （ c ∙ e ）ₐ a ∙ （ c ∙ e ）ₐ b ） （ c ∙ e ）  M
        ≈⟨ sym (lemma∙distributive {c} {e} {a} {b} {M}) ⟩
          （ c ∙ e ） （ a ∙ b ） M
        ∎
+   where b∈abc∷atomsM : b ∈ a ∷ b ∷ c ∷ Λ-atoms M
+         b∈abc∷atomsM = there (here refl)
+         e∉atomsM : e ∉ Λ-atoms M
+         e∉atomsM = ∉-++⁻ʳ (a ∷ b ∷ c ∷ []) e∉abc∷atomsM
+
 lemma∙cancel∼α {a} {b} {c} {ƛ .b M}  #ƛ≡       c#λdM     | no a≢b | no a≢c | no b≢c | no b≢b
   | no c≢b = ⊥-elim (b≢b refl)
 lemma∙cancel∼α {a} {b} {c} {ƛ .c M}  (#ƛ b#M)  #ƛ≡       | no a≢b | no a≢c | no b≢c | no _
@@ -271,9 +283,10 @@ lemma∼α* {a}                  (∼α· M∼αM' N∼αN')   (*·l a*M)     = 
 lemma∼α* {a}                  (∼α· M∼αM' N∼αN')   (*·r a*N)     = *·r (lemma∼α* N∼αN' a*N)
 lemma∼α* {a} {ƛ b M} {ƛ c N}  (∼αƛ xs f)        (*ƛ a*M b≢a)
   with
-  χ' (a ∷ b ∷ c ∷ [] ++ xs ++ ocurr N) |
-  c∉xs++ys→c∉xs {χ' (a ∷ b ∷ c ∷ [] ++ xs ++ ocurr N)}  {xs} {ocurr N} (c∉xs++ys→c∉ys {χ' (a ∷ b ∷ c ∷ [] ++ xs ++ ocurr N)} {a ∷ b ∷ c ∷ []} {xs ++ ocurr N} (lemmaχ∉ (a ∷ b ∷ c ∷ [] ++ xs ++ ocurr N))) |
-  (lemmaχ∉ (a ∷ b ∷ c ∷ [] ++ xs ++ ocurr N))
+  χ' (a ∷ b ∷ c ∷ [] ++ xs ++ Λ-atoms N) |
+  ∉-++⁻ˡ {v = χ' (a ∷ b ∷ c ∷ [] ++ xs ++ Λ-atoms N)} xs
+    (∉-++⁻ʳ (a ∷ b ∷ c ∷ []) (lemmaχ∉ (a ∷ b ∷ c ∷ [] ++ xs ++ Λ-atoms N))) |
+  (lemmaχ∉ (a ∷ b ∷ c ∷ [] ++ xs ++ Λ-atoms N))
 ... | d | d∉xs | d∉abcxsN
   with lemma*swap← (lemma∼α* (f d d∉xs) (lemma*swap→ a≢d (sym≢ b≢a) a*M))
   where
@@ -285,7 +298,7 @@ lemma∼α* {a} {ƛ b M} {ƛ c N} (∼αƛ xs f) (*ƛ a*M b≢a)
   | d | d∉xs | d∉abcxsN | inj₂ (inj₁ (a≡c , d*N))  = ⊥-elim ((¬d*N) d*N)
   where
   d∉N : d ∉ₜ N
-  d∉N = lemmaocurr (c∉xs++ys→c∉ys {d} {xs} {ocurr N} (c∉xs++ys→c∉ys {d} {a ∷ b ∷ c ∷ []} {xs ++ ocurr N}  d∉abcxsN))
+  d∉N = lemmaΛ-atoms (∉-++⁻ʳ xs (∉-++⁻ʳ (a ∷ b ∷ c ∷ []) d∉abcxsN))
   ¬d*N : ¬ (d * N)
   ¬d*N d*N = (lemma∉→¬∈ d∉N) (lemma-free→∈ d*N)
 lemma∼α* {a} {ƛ b M} {ƛ c N} (∼αƛ xs f) (*ƛ a*M b≢a)
@@ -303,13 +316,13 @@ lemma∼α# {a} {M} {N} M∼N a#M with a #? N
 χ∼α M N xs M∼αN = lemmaχaux⊆ (xs ++ fv M) (xs ++ fv N) lemma⊆ lemma⊇
   where
   lemma⊆ : (xs ++ fv M) ⊆ (xs ++ fv N)
-  lemma⊆ {a} a∈xs++fvM with c∈xs++ys→c∈xs∨c∈ys {a} {xs} {fv M} a∈xs++fvM
-  ... | inj₁ a∈xs   = c∈xs∨c∈ys→c∈xs++ys {a} {xs} {fv N} (inj₁ a∈xs)
-  ... | inj₂ a∈fvM  =  c∈xs∨c∈ys→c∈xs++ys {a} {xs} {fv N} (inj₂ (lemmafvfree← a N (lemma∼α* M∼αN (lemmafvfree→ a M (a∈fvM)))))
+  lemma⊆ {a} a∈xs++fvM with ∈-++⁻ xs a∈xs++fvM
+  ... | inj₁ a∈xs   = xs⊆xs++ys xs (fv N) a∈xs
+  ... | inj₂ a∈fvM  = xs⊆ys++xs (fv N) xs (lemmafvfree← a N (lemma∼α* M∼αN (lemmafvfree→ a M (a∈fvM))))
   lemma⊇ : (xs ++ fv N) ⊆ (xs ++ fv M)
-  lemma⊇ {a} a∈xs++fvN with c∈xs++ys→c∈xs∨c∈ys {a} {xs} {fv N} a∈xs++fvN
-  ... | inj₁ a∈xs   = c∈xs∨c∈ys→c∈xs++ys {a} {xs} {fv M} (inj₁ a∈xs)
-  ... | inj₂ a∈fvN  =  c∈xs∨c∈ys→c∈xs++ys {a} {xs} {fv M} (inj₂ (lemmafvfree← a M (lemma∼α* (σ M∼αN) (lemmafvfree→ a N (a∈fvN)))))
+  lemma⊇ {a} a∈xs++fvN with ∈-++⁻ xs a∈xs++fvN
+  ... | inj₁ a∈xs   = xs⊆xs++ys xs (fv M) a∈xs
+  ... | inj₂ a∈fvN  = xs⊆ys++xs (fv M) xs (lemmafvfree← a M (lemma∼α* (σ M∼αN) (lemmafvfree→ a N (a∈fvN))))
 -- A more classical alpha definition
 data _≈α_ : Λ → Λ → Set where
   ≈αv  : {a : Atom}
@@ -325,16 +338,16 @@ lemma∼α∃#→∀ : {a b c : Atom}{M N : Λ} →
          c # ƛ a M → c # ƛ b N → （ a ∙ c ） M ∼α  （ b ∙ c ） N →
          ∃ (λ xs → ((d : Atom) →  d ∉ xs → （ a ∙ d ） M ∼α  （ b ∙ d ） N))
 lemma∼α∃#→∀ {a} {b} {c} {M} {N} c#ƛaM c#ƛbN （ac）M∼α（bc）N
-  = ocurr M ++ ocurr N ,
-    (λ  d d∉ocurrM++ocurrN →
+  = Λ-atoms M ++ Λ-atoms N ,
+    (λ  d d∉atomsM++atomsN →
         (lemmaEqRel _∼α_ lemma∼αEquiv) [(d , c)]
                                          (  begin
                                               （ d ∙ c ） （ a ∙ d ） M
-                                            ∼⟨ lemma∙ c#ƛaM (lemmaocurr (c∉xs++ys→c∉xs {d} {ocurr M} {ocurr N} d∉ocurrM++ocurrN)) ⟩
+                                            ∼⟨ lemma∙ c#ƛaM (lemmaΛ-atoms (∉-++⁻ˡ (Λ-atoms M) d∉atomsM++atomsN)) ⟩
                                               （ a ∙ c ） M
                                             ∼⟨ （ac）M∼α（bc）N ⟩
                                               （ b ∙ c ） N
-                                            ∼⟨ σ (lemma∙ c#ƛbN (lemmaocurr ((c∉xs++ys→c∉ys {d} {ocurr M} {ocurr N} d∉ocurrM++ocurrN)) )) ⟩
+                                            ∼⟨ σ (lemma∙ c#ƛbN (lemmaΛ-atoms ((∉-++⁻ʳ (Λ-atoms M) d∉atomsM++atomsN)) )) ⟩
                                               （ d ∙ c ） （ b ∙ d ） N
                                             ∎ ))
 --
@@ -342,18 +355,16 @@ lemma∼α∀→∃# : {a b : Atom}{M N : Λ}{xs : List Atom} →
          ((c : Atom) →  c ∉ xs → （ a ∙ c ） M ∼α  （ b ∙ c ） N) →
          ∃ (λ c → c # ƛ a M ∧ c # ƛ b N ∧ （ a ∙ c ） M ∼α （ b ∙ c ） N)
 lemma∼α∀→∃# {a} {b} {M} {N} {xs} f
-  with χ' (xs ++ ocurr (ƛ a M) ++ ocurr (ƛ b N))  | lemmaχ∉ (xs ++ ocurr (ƛ a M) ++ ocurr (ƛ b N))
-... | c | c∉xs++ocurrƛaM++ocurrƛbN
+  with χ' (xs ++ Λ-atoms (ƛ a M) ++ Λ-atoms (ƛ b N))  | lemmaχ∉ (xs ++ Λ-atoms (ƛ a M) ++ Λ-atoms (ƛ b N))
+... | c | c∉xs++atomsƛaM++atomsƛbN
   =  c ,
      (lemma∉→#
-       (lemmaocurr
-          (c∉xs++ys→c∉xs  {c} {ocurr (ƛ a M)} {ocurr (ƛ b N)}
-                          (c∉xs++ys→c∉ys {c} {xs} {ocurr (ƛ a M) ++ ocurr (ƛ b N)} c∉xs++ocurrƛaM++ocurrƛbN)))) ,
+       (lemmaΛ-atoms
+          (∉-++⁻ˡ (Λ-atoms (ƛ a M)) (∉-++⁻ʳ xs c∉xs++atomsƛaM++atomsƛbN)))) ,
      (lemma∉→#
-       (lemmaocurr
-         (c∉xs++ys→c∉ys  {c} {ocurr (ƛ a M)} {ocurr (ƛ b N)}
-                         (c∉xs++ys→c∉ys {c} {xs} {ocurr (ƛ a M) ++ ocurr (ƛ b N)} c∉xs++ocurrƛaM++ocurrƛbN)))) ,
-     (f c (c∉xs++ys→c∉xs {c} {xs} {ocurr (ƛ a M) ++ ocurr (ƛ b N)} c∉xs++ocurrƛaM++ocurrƛbN))
+       (lemmaΛ-atoms
+         (∉-++⁻ʳ (Λ-atoms (ƛ a M)) (∉-++⁻ʳ xs c∉xs++atomsƛaM++atomsƛbN)))) ,
+     (f c (∉-++⁻ˡ xs c∉xs++atomsƛaM++atomsƛbN))
 
 -- Alpha definitions equivalence; Study if this proof can be done with an induction principle without Accesible predicate !
 lemma∼α→≈αAcc : {M N : Λ} → ΛAcc M → M ∼α N → M ≈α N
@@ -374,7 +385,7 @@ lemma≈α→∼α (≈αƛ c#ƛaM c#ƛbN （ac）M∼α（bc）N)
 --
 lemma∼αλ : {a b : Atom}{M : Λ} → b # M → ƛ a M ∼α ƛ b (（ a ∙ b ） M)
 lemma∼αλ {a} {b} {M} b#M
-  = ∼αƛ (ocurr M) (λ c c∉ocurrM → σ (lemma∙cancel∼α (lemma∉→# (lemmaocurr c∉ocurrM)) b#M))
+  = ∼αƛ (Λ-atoms M) (λ c c∉atomsM → σ (lemma∙cancel∼α (lemma∉→# (lemmaΛ-atoms c∉atomsM)) b#M))
 --
 lemma∼αλ' : {a b : Atom}{M : Λ} → b # ƛ a M → ƛ a M ∼α ƛ b (（ a ∙ b ） M)
 lemma∼αλ' {a} {.a} {M} #ƛ≡ rewrite lemma（aa）M≡M {a} {M} = ρ
@@ -434,7 +445,7 @@ Strong Compatibility
 
 %<*strongAlphaCompatible>
 \begin{code}
-strong∼αCompatible  : {l : Level}{A : Set l}
+strong∼αCompatible  : {l : Level} {A : Set l}
                     → (Λ → A) → Λ → Set l
 strong∼αCompatible f M = ∀ N → M ∼α N → f M ≡ f N
 \end{code}

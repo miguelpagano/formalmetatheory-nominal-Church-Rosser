@@ -12,7 +12,9 @@ open import Data.List hiding (any)
 open import Data.List.Properties
 open import Data.List.Membership.Propositional as Any
 open import Data.List.Relation.Unary.Any as AnyDef using ()
-open import Data.List.Relation.Unary.Any.Properties hiding (++⁺ʳ;concat⁺)
+open import Data.List.Relation.Unary.Any.Properties hiding (concat⁺)
+open import Data.List.Membership.Propositional
+open import Data.List.Membership.Propositional.Properties
 open import Relation.Nullary
 open import Relation.Nullary.Decidable
 open import Relation.Nullary.Negation
@@ -21,29 +23,15 @@ open import Relation.Binary.PropositionalEquality as PropEq renaming ([_] to [_]
 open Any renaming (_∈_ to _∈'_;_∉_ to _∉'_)
 open AnyDef.Any
 open import Data.List.Relation.Binary.Subset.Propositional
-open import Data.List.Relation.Binary.Subset.Propositional.Properties
+open import Data.List.Relation.Binary.Subset.Propositional.Properties  hiding (++⁺ˡ;++⁺ʳ)
 import Function.Equality as FE
 open import Function.Inverse hiding (sym;_∘_;map;id)
 open Function.Inverse.Inverse
 
---
-lemmaxs++[]≡xs : {A : Set}(xs : List A) → xs ++ [] ≡ xs
-lemmaxs++[]≡xs []        =  refl
-lemmaxs++[]≡xs (x ∷ xs)  =  cong (_∷_ x) (lemmaxs++[]≡xs xs)
 -- Auxiliary functions and properties
 _-_ : ∀ {A : Set} {_≟ₐ_ : Decidable {A = A} (_≡_)} → List A → A → List A
 _-_ {A} {_≟ₐ_} xs x = filter (λ y → ¬? (x ≟ₐ y)) xs
---
-lemmaΓ⊆Δ→Γ,x⊆Δ,x : {x : ℕ}{Γ Δ : List ℕ} → Γ ⊆ Δ → x ∷ Γ ⊆ x ∷ Δ
-lemmaΓ⊆Δ→Γ,x⊆Δ,x {x} Γ⊆Δ {y} (here y≡x)     = here y≡x
-lemmaΓ⊆Δ→Γ,x⊆Δ,x {x} Γ⊆Δ {y} (there y∈Γ,x)  = there (Γ⊆Δ y∈Γ,x)
---
-lemmaΓ⊆Γ,x : {Γ : List ℕ}{x : ℕ} → Γ ⊆ x ∷ Γ
-lemmaΓ⊆Γ,x {Γ} {x} {y} y∈Γ = there y∈Γ
---
-lemmax∈Γ⇒Γ,x⊆Γ : {Γ : List ℕ}{x : ℕ} → x ∈' Γ → x ∷ Γ ⊆ Γ
-lemmax∈Γ⇒Γ,x⊆Γ x∈Γ (here refl)  = x∈Γ
-lemmax∈Γ⇒Γ,x⊆Γ x∈Γ (there y∈Γ)  = y∈Γ
+
 --
 lemma∈ : {Γ : List ℕ}{x y : ℕ} → y ∈' x ∷ Γ → x ≢ y → y ∈' Γ
 lemma∈ {Γ} {x} .{x}  (here refl) x≢y = ⊥-elim (x≢y refl)
@@ -78,6 +66,24 @@ lemmaΓ++Δ,x⊆Γ,x++Δ {Γ} {Δ} {x} {y} rewrite sym (++-identityʳ Δ)
     hip (here px) = there (here px)
     hip (there (here px)) = here px
     hip (there (there x₂)) = there (there x₂)
+
+∉-++⁻ : {A : Set} {v : A} → ∀ xs {ys} → v ∉ xs ++ ys → (v ∉ xs) × (v ∉ ys)
+∉-++⁻ xs v∉xs++ys =
+      (λ v∈xs → ⊥-elim (v∉xs++ys (++⁺ˡ v∈xs))) ,
+      λ v∈ys → ⊥-elim (v∉xs++ys (++⁺ʳ xs v∈ys))
+
+∉-++⁻ˡ : {A : Set} {v : A} → ∀ xs {ys} → v ∉ xs ++ ys → (v ∉ xs)
+∉-++⁻ˡ xs v∉xs++ys = proj₁ (∉-++⁻ xs v∉xs++ys)
+
+∉-++⁻ʳ : {A : Set} {v : A} → ∀ xs {ys} → v ∉ xs ++ ys → (v ∉ ys)
+∉-++⁻ʳ xs v∉xs++ys = proj₂ (∉-++⁻ xs v∉xs++ys)
+
+∉-∷⁼ : {A : Set} {a d : A} {xs : List A} → a ∈ xs → d ∉ xs → d ≢ a
+∉-∷⁼ a∈xs d∉xs d≡a rewrite d≡a = d∉xs a∈xs
+
+∉-∷⁼ᵗ : {A : Set} {a d : A}{xs : List A} → d ∉ (a ∷ xs) → d ∉ xs
+∉-∷⁼ᵗ d∉∷ d∈xs = d∉∷ (there d∈xs)
+
 \end{code}
 
 First element to satisfy some property.

@@ -24,6 +24,7 @@ open import Data.List.Relation.Unary.Any as Any hiding (map)
 open import Data.List.Relation.Unary.Any.Properties
 open import Data.List.Membership.Propositional
 open import Data.List.Membership.Propositional.Properties
+open import Data.List.Relation.Binary.Subset.Propositional
 import Data.Nat.Properties as NatProp
 open DecTotalOrder NatProp.≤-decTotalOrder renaming (refl to ≤-refl)
 open NatProp.≤-Reasoning renaming (begin_ to start_; _∎ to _◽)
@@ -33,6 +34,7 @@ open NatProp
 postulate
   χ' : List Atom → Atom
   lemmaχ∉ : (xs : List Atom) → χ' xs ∉ xs
+  lemmaχaux⊆ : (xs ys : List Atom) → xs ⊆ ys → ys ⊆ xs → χ' xs ≡ χ' ys
 
 infix  9 _·_
 infix  2 _⊆ₜ_
@@ -145,11 +147,6 @@ lemma-free→∈ (*ƛ x*M y≢x)  = ∈ƛr (lemma-free→∈ x*M)
 Λ-atoms (M · N)  = Λ-atoms M ++ Λ-atoms N
 Λ-atoms (ƛ x M)  = x ∷ Λ-atoms M
 --
--- FIXME: move this to ListProperties.
-∉-++⁻ : {A : Set} {v : A } → ∀ xs {ys} → v ∉ xs ++ ys → (v ∉ xs) × (v ∉ ys)
-∉-++⁻ xs v∉xs++ys =
-      (λ v∈xs → ⊥-elim (v∉xs++ys (++⁺ˡ v∈xs))) ,
-      λ v∈ys → ⊥-elim (v∉xs++ys (++⁺ʳ xs v∈ys))
 --
 lemmaΛ-atoms : {a : Atom}{M : Λ} → a ∉ Λ-atoms M → a ∉ₜ M
 lemmaΛ-atoms {a} {v b}    a∉[b]
