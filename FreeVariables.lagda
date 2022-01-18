@@ -1,51 +1,54 @@
 \begin{code}
-module FreeVariables where
+open import Relation.Binary.Definitions
+open import Relation.Binary.PropositionalEquality hiding ([_])
 
-open import Level
-open import Function
-open import Atom
-open import Alpha
+module FreeVariables (Atom : Set) (_≟ₐ_ : Decidable {A = Atom} _≡_) where
+
+open import AtomAbs Atom _≟ₐ_
+open import Term Atom _≟ₐ_ hiding (fv)
+open import Alpha Atom _≟ₐ_ hiding (step-≡)
+open import TermAcc Atom _≟ₐ_
 open import ListProperties
-open import Term hiding (fv)
-open import TermRecursion
-open import TermInduction
-open import TermAcc
-open import NaturalProperties
-open import Equivariant
-open import Permutation
+open import TermInduction Atom _≟ₐ_
+open import TermRecursion Atom _≟ₐ_
+open import Permutation Atom _≟ₐ_
+open import Equivariant Atom _≟ₐ_
 
-open import Data.Bool hiding (_∨_)
-open import Data.Nat hiding (_*_)
-open import Data.Nat.Properties
+open import Function
 open import Data.Empty
-open import Data.Sum -- renaming (_⊎_ to _∨_)
-open import Data.List hiding (any)
-open import Data.List.Any as Any hiding (map)
-open import Data.List.Any.Membership
-open Any.Membership-≡
+open import Data.Sum
+open import Data.List
+open import Data.List.Relation.Unary.Any as Any hiding (map)
+open import Data.List.Relation.Unary.Any.Properties
+open import Data.List.Membership.Propositional
+open import Data.List.Membership.Propositional.Properties
+open import Relation.Binary.PropositionalEquality as PropEq hiding ([_])
+open import Data.List.Relation.Binary.Subset.Propositional
+open import Data.List.Relation.Binary.Subset.Propositional.Properties  hiding (++⁺ˡ;++⁺ʳ)
 open import Data.Product
 open import Relation.Binary.PropositionalEquality as PropEq renaming ([_] to [_]ᵢ)
 open import Relation.Nullary
 open import Relation.Nullary.Decidable
+open import Relation.Nullary.Negation
 
 \end{code}
 
 %<*freeVariables>
 \begin{code}
 fv : Λ → List Atom
-fv = ΛIt (List Atom) [_] _++_ ([] , λ v r → r - v)
+fv = ΛIt (List Atom) [_] _++_ ([] , λ v r → r -ₐ v)
 \end{code}
 %</freeVariables>
 
 \begin{code}
 lemmafvv : ∀ a → fv (v a) ≡ [ a ]
-lemmafvv a = refl --ΛItv (List Atom) [_] _++_ []  (λ v r → r - v) a
+lemmafvv a = refl
 --
 lemmafv· : ∀ M N → fv (M · N) ≡ fv M ++ fv N
-lemmafv· M N = refl --ΛIt· (List Atom) [_] _++_ []  (λ v r → r - v) M N
+lemmafv· M N = refl
 --
-lemmafvƛ : ∀ b M → fv (ƛ b M) ≡ fv (（ b ∙ χ [] (ƛ b M) ） M) - χ [] (ƛ b M)
-lemmafvƛ b M = ΛItƛ (List Atom) [_] _++_ []  (λ v r → r - v) b M
+lemmafvƛ : ∀ b M → fv (ƛ b M) ≡ fv (（ b ∙ χ [] (ƛ b M) ） M) -ₐ χ [] (ƛ b M)
+lemmafvƛ b M = ΛItƛ (List Atom) [_] _++_ []  (λ v r → r -ₐ v) b M
 \end{code}
 
 \end{code}
@@ -53,9 +56,9 @@ lemmafvƛ b M = ΛItƛ (List Atom) [_] _++_ []  (λ v r → r - v) b M
 %<*fvalpha>
 \begin{code}
 lemma∼αfv : {M N : Λ} → M ∼α N → fv M ≡ fv N
-lemma∼αfv {M} {N} 
-  = lemmaΛItStrongαCompatible 
-      (List Atom) [_] _++_ [] (λ v r → r - v) M N 
+lemma∼αfv {M} {N}
+  = lemmaΛItStrongαCompatible
+      (List Atom) [_] _++_ [] (λ v r → r -ₐ v) M N
 \end{code}
 %</fvalpha>
 
@@ -68,56 +71,56 @@ infix 8 _free_
 %<*free>
 \begin{code}
 _free_ : Atom → Λ → Set
-(_free_) a = ΛIt Set (_≡_ a) _⊎_ ([ a ] , λ _ → id) 
+(_free_) a = ΛIt Set (_≡_ a) _⊎_ ([ a ] , λ _ → id)
 \end{code}
 %</free>
 
 \begin{code}
 freeλ : ∀ a b M → a free (ƛ b M) ≡ a free  (（ b ∙ χ [ a ] (ƛ b M) ） M)
-freeλ a b M = ΛItƛ Set (λ b → a ≡ b) _⊎_ [ a ] (const id) b M 
+freeλ a b M = ΛItƛ Set (λ b → a ≡ b) _⊎_ [ a ] (const id) b M
 --
 freeStrongCompatible : ∀ a M → strong∼αCompatible (_free_ a) M
-freeStrongCompatible a M N M∼N 
-  = lemmaΛItStrongαCompatible Set (λ b → a ≡ b) _⊎_ [ a ]  (const id) M N M∼N
+freeStrongCompatible a M N M∼N
+  = lemmaΛItStrongαCompatible Set (λ b → a ≡ b) _⊎_ [ a ] (const id) M N M∼N
 --
 lemmavfree : ∀ {a b} → a ≡ b → a free (v b)
-lemmavfree {a} .{a} refl = refl -- rewrite ΛItv Set (λ b → a ≡ b) _⊎_ [ a ] (const id) a = refl
+lemmavfree {a} .{a} refl = refl
 --
 lemma·rfree : ∀ {a M} N → a free M →  a free (M · N)
-lemma·rfree {a} {M} N afreeM = inj₁ afreeM --rewrite ΛIt· Set (λ b → a ≡ b) _⊎_ [ a ] (const id) M N = inj₁ afreeM
+lemma·rfree {a} {M} N afreeM = inj₁ afreeM
 --
 lemma·lfree : ∀ {a} M {N} → a free N → a free (M · N)
-lemma·lfree {a} M {N} afreeN = inj₂ afreeN --rewrite ΛIt· Set (λ b → a ≡ b) _⊎_ [ a ] (const id) M N = inj₂ afreeN
+lemma·lfree {a} M {N} afreeN = inj₂ afreeN
 --
 Pfs : Atom → Λ → Set
 Pfs a M = ∀ b c → a ≢ b → a ≢ c → a free M → a free (（ b ∙ c ） M)
 --
 lemmaFreeSwap : ∀ M a → Pfs a M
 lemmaFreeSwap M a
-  = TermαIndPerm  
-                 (Pfs a) 
+  = TermαIndPerm
+                 (Pfs a)
                  αCompatiblePfsa
-                 lemmav 
-                 lemma· 
+                 lemmav
+                 lemma·
                  ([ a ] , lemmaƛ)
-                 M 
+                 M
   where
   αCompatiblePfsa : αCompatiblePred (Pfs a)
-  αCompatiblePfsa {M} {N} M∼N PfsaM b c a≢b a≢c afreeN 
-    rewrite  
-       freeStrongCompatible a N M (σ M∼N) 
-    |  freeStrongCompatible a (（ b ∙ c ） N) (（ b ∙ c ） M) (lemma∼αEquiv [(b , c)] (σ M∼N)) 
+  αCompatiblePfsa {M} {N} M∼N PfsaM b c a≢b a≢c afreeN
+    rewrite
+       freeStrongCompatible a N M (σ M∼N)
+    |  freeStrongCompatible a (（ b ∙ c ） N) (（ b ∙ c ） M) (lemma∼αEquiv [(b , c)] (σ M∼N))
     = PfsaM b c a≢b a≢c afreeN
-  lemmav : (d : ℕ) → Pfs a (v d)
+  lemmav : (d : Atom) → Pfs a (v d)
   lemmav .a b c a≢b a≢c refl = sym (lemma∙ₐc≢a∧c≢b a≢b a≢c)
   lemma· : (M N : Λ) → Pfs a M → Pfs a N → Pfs a (M · N)
   lemma· M₁ N PfsaM PfsaN b c a≢b a≢c (inj₁ afreeM) = inj₁ (PfsaM b c a≢b a≢c afreeM)
   lemma· M₁ N PfsaM PfsaN b c a≢b a≢c (inj₂ afreeN) = inj₂ (PfsaN b c a≢b a≢c afreeN)
-  lemmaƛ : (M : Λ) (d : ℕ) → d ∉ [ a ] → ((π : List (Atom × Atom)) → Pfs a (π ∙ M)) → Pfs a (ƛ d M)
+  lemmaƛ : (M : Λ) (d : Atom) → d ∉ [ a ] → ((π : List (Atom × Atom)) → Pfs a (π ∙ M)) → Pfs a (ƛ d M)
   lemmaƛ M d d∉[a] Hi b c a≢b a≢c afree（de）M rewrite freeλ a d M | freeλ a (（ b ∙ c ）ₐ d) (（ b ∙ c ） M)
     with χ [ a ] (ƛ d M) | χ∉ [ a ] (ƛ d M) | χ [ a ] (（ b ∙ c ） (ƛ d M)) | χ∉ [ a ] (（ b ∙ c ） (ƛ d M))
   ... | e | e∉[a] | f | f∉[a] = afree（（bc）df）（bc）M
-    where 
+    where
     a≢d : a ≢ d
     a≢d = λ a≡d → d∉[a] (here (sym a≡d))
     a≢e : a ≢ e
@@ -151,30 +154,30 @@ Pfs2 : Atom → Λ → Set
 Pfs2 a M = ∀ b c → a ≢ b → a ≢ c → a free (（ b ∙ c ） M) → a free M
 --
 lemmaFreeSwap2 : ∀ M a → Pfs2 a M
-lemmaFreeSwap2 M a b c a≢b a≢c afree（bc）M 
-  with lemmaFreeSwap (（ b ∙ c ） M) a b c a≢b a≢c afree（bc）M 
+lemmaFreeSwap2 M a b c a≢b a≢c afree（bc）M
+  with lemmaFreeSwap (（ b ∙ c ） M) a b c a≢b a≢c afree（bc）M
 ... | p rewrite lemma（ab）（ab）M≡M {b} {c} {M}  = p
 --
 Pf* : Atom → Λ → Set
 Pf* a M = a free M → a * M
 --
 lemmafree→* : ∀ {a M} → Pf* a M
-lemmafree→* {a} {M} 
+lemmafree→* {a} {M}
   = TermαPrimInd (Pf* a) αCompatiblePf*a (λ {.a refl → *v}) lemma· ([ a ] , lemmaƛ) M
   where
   αCompatiblePf*a :  αCompatiblePred (Pf* a)
-  αCompatiblePf*a {M} {N} M∼N Pf*aM afreeN 
-    rewrite freeStrongCompatible a N M (σ M∼N) 
+  αCompatiblePf*a {M} {N} M∼N Pf*aM afreeN
+    rewrite freeStrongCompatible a N M (σ M∼N)
     = lemma∼α* M∼N (Pf*aM afreeN)
   lemma· : (M N : Λ) → Pf* a M → Pf* a N → Pf* a (M · N)
   lemma· M N Pf*aM Pf*aN (inj₁ a*M) = *·l (Pf*aM a*M)
   lemma· M N Pf*aM Pf*aN (inj₂ a*N) = *·r (Pf*aN a*N)
-  lemmaƛ : (M : Λ) (b : ℕ) → b ∉ [ a ] 
-         → (Pf* a M) 
+  lemmaƛ : (M : Λ) (b : Atom) → b ∉ [ a ]
+         → (Pf* a M)
          → Pf* a (ƛ b M)
-  lemmaƛ M b b∉[a] Hi afree（bc）M rewrite freeλ a b M with χ [ a ] (ƛ b M) | χ∉ [ a ] (ƛ b M) 
+  lemmaƛ M b b∉[a] Hi afree（bc）M rewrite freeλ a b M with χ [ a ] (ƛ b M) | χ∉ [ a ] (ƛ b M)
   ... | c | c∉[a] = *ƛ (Hi (lemmaFreeSwap2 M a b c a≢b a≢c afree（bc）M)) (sym≢ a≢b)
-    where 
+    where
     a≢b = λ a≡b → b∉[a] (here (sym a≡b))
     a≢c = λ a≡c → c∉[a] (here (sym a≡c))
 --
@@ -182,36 +185,34 @@ Pfvf : Atom → Λ → Set
 Pfvf a M = a ∈ fv M → a free M
 --
 αCompatiblePfvfa : ∀ a → αCompatiblePred (Pfvf a)
-αCompatiblePfvfa a {M} {N} M∼N PfvfM a∈fvN 
-  rewrite 
-    lemma∼αfv M∼N 
+αCompatiblePfvfa a {M} {N} M∼N PfvfM a∈fvN
+  rewrite
+    lemma∼αfv M∼N
   | freeStrongCompatible a N M (σ M∼N) = PfvfM a∈fvN
 --
 
 lemmafvf : ∀ {a} {M} → Pfvf a M
-lemmafvf {a} {M} 
-  = TermαIndPerm (Pfvf a) (αCompatiblePfvfa a) lemmav lemma· ([ a ] , lemmaƛ) M   
+lemmafvf {a} {M}
+  = TermαIndPerm (Pfvf a) (αCompatiblePfvfa a) lemmav lemma· ([ a ] , lemmaƛ) M
   where
-  lemmav : (b : ℕ) → Pfvf a (v b)
+  lemmav : (b : Atom) → Pfvf a (v b)
   lemmav .a  (here refl) = refl
   lemmav _   (there ())
   lemma· : (M N : Λ) → Pfvf a M → Pfvf a N → Pfvf a (M · N)
-  lemma· M N PfvfaM PfvfaN a∈fvM++fvN with c∈xs++ys→c∈xs∨c∈ys {a} {fv M} a∈fvM++fvN 
+  lemma· M N PfvfaM PfvfaN a∈fvM++fvN with ∈-++⁻ (fv M) a∈fvM++fvN
   ... | inj₁ a∈fvM = inj₁ (PfvfaM a∈fvM)
   ... | inj₂ a∈fvN = inj₂ (PfvfaN a∈fvN)
-  lemmaƛ : (M : Λ) (b : ℕ) → b ∉ [ a ] 
-         → ((π : List (Atom × Atom)) 
-         → Pfvf a (π ∙ M)) 
+  lemmaƛ : (M : Λ) (b : Atom) → b ∉ [ a ]
+         → ((π : List (Atom × Atom))
+         → Pfvf a (π ∙ M))
          → Pfvf a (ƛ b M)
-  lemmaƛ M b b∉[a] f a∈fvƛbM 
+  lemmaƛ M b b∉[a] f a∈fvƛbM
     rewrite lemmafvƛ b M
-    with χ [] (ƛ b M) | lemmafilter→ a (fv (（ b ∙ χ [] (ƛ b M) ） M)) (λ y → not (⌊ χ [] (ƛ b M) ≟ₐ y ⌋)) a∈fvƛbM  
-  ... | c | ¬a≟c=true , a∈fv（bc）M with a ≟ₐ c
-  lemmaƛ M b b∉[a] f a∈fvƛbM | .a | ¬a≟a=true , a∈fv（ba）M  | yes refl with a ≟ₐ a
-  lemmaƛ M b b∉[a] f a∈fvƛbM | .a | () , a∈fv（ba）M  | yes refl | yes _
-  lemmaƛ M b b∉[a] f a∈fvƛbM | .a | _ , a∈fv（ba）M  | yes refl | no a≢a = ⊥-elim (a≢a refl)
-  lemmaƛ M b b∉[a] f a∈fvƛbM | c  | _ , a∈fv（bc）M  | no a≢c 
-    = lemmaƛfree {b} {a} {M} (lemmaFreeSwap2 M a b c a≢b a≢c (f [(b , c)] a∈fv（bc）M)) a≢b 
+    with χ [] (ƛ b M) | ∈-filter⁻ (λ y → ¬? (χ [] (ƛ b M) ≟ₐ y)) {xs = fv (（ b ∙ χ [] (ƛ b M) ） M)} a∈fvƛbM
+  ... | c | ¬a≟c , a∈fv（bc）M with a ≟ₐ c
+  lemmaƛ M b b∉[a] f a∈fvƛbM | .a | a∈fv（ba）M , a≢a | yes refl = ⊥-elim (a≢a refl)
+  lemmaƛ M b b∉[a] f a∈fvƛbM | c  | a∈fv（bc）M , _  | no a≢c
+    = lemmaƛfree {b} {a} {M} (lemmaFreeSwap2 M a b c a≢b a≢c (f [(b , c)] a∈fv（bc）M)) a≢b
     where
     a≢b : a ≢ b
     a≢b = λ a≡b → (⊥-elim (b∉[a] (here (sym a≡b))))
@@ -221,29 +222,29 @@ lemmafvf {a} {M}
 \begin{code}
 Pffv : Atom → Λ → Set
 Pffv a M = a free M → a ∈ fv M
---
+
 αCompatiblePffva : ∀ a → αCompatiblePred (Pffv a)
 αCompatiblePffva a {M} {N} M∼N PffvM afreeM
-  rewrite 
-    lemma∼αfv M∼N 
+  rewrite
+    lemma∼αfv M∼N
   | freeStrongCompatible a N M (σ M∼N) = PffvM afreeM
 --
 lemmaffv : ∀ {a} {M} → Pffv a M
-lemmaffv {a} {M} 
-  = TermαIndPerm  (Pffv a) (αCompatiblePffva a) 
-                  (λ { b b≡a → here b≡a }) 
-                  lemma· 
-                  ([ a ] , lemmaƛ) 
+lemmaffv {a} {M}
+  = TermαIndPerm  (Pffv a) (αCompatiblePffva a)
+                  (λ { b b≡a → here b≡a })
+                  lemma·
+                  ([ a ] , lemmaƛ)
                   M
   where
   lemma· : (M N : Λ) → Pffv a M → Pffv a N → Pffv a (M · N)
-  lemma· M N PffvaM PffvaN (inj₁ afreeM) = c∈xs∨c∈ys→c∈xs++ys (inj₁ (PffvaM afreeM)) 
-  lemma· M N PffvaM PffvaN (inj₂ afreeN) = c∈xs∨c∈ys→c∈xs++ys {xs = fv M} (inj₂ (PffvaN afreeN)) 
-  lemmaƛ : (M : Λ) (b : ℕ) → b ∉ [ a ] 
-         → ((π : List (Atom × Atom)) → Pffv a (π ∙ M)) 
+  lemma· M N PffvaM PffvaN (inj₁ afreeM) = ∈-++⁺ˡ {ys = fv N} (PffvaM afreeM)
+  lemma· M N PffvaM PffvaN (inj₂ afreeN) = ∈-++⁺ʳ (fv M) (PffvaN afreeN)
+  lemmaƛ : (M : Λ) (b : Atom) → b ∉ [ a ]
+         → ((π : List (Atom × Atom)) → Pffv a (π ∙ M))
          → Pffv a (ƛ b M)
   lemmaƛ M b b∉[a] PffvaπM afree（bc）M rewrite freeλ a b M | lemmafvƛ b M
-    = lemmafilter← a (fv (（ b ∙ d ） M)) (λ y → not (⌊ d ≟ₐ y ⌋)) prf≡ a∈fv（bd）M 
+    = ∈-filter⁺ (λ y → ¬? (d ≟ₐ y)) {xs = fv (（ b ∙ d ） M)} a∈fv（bd）M prf≡
     where
     c = χ [ a ] (ƛ b M)
     d = χ [] (ƛ b M)
@@ -257,14 +258,14 @@ lemmaffv {a} {M}
     auxa≢d : ∀ a b d → a ≢ b → a free M → d # ƛ b M → a ≢ d
     auxa≢d a .a .a a≢a afreeM #ƛ≡ refl     = ⊥-elim (a≢a refl)
     auxa≢d a b .a a≢b afreeM (#ƛ a#M) refl = ⊥-elim ((lemma-free→¬# (lemmafree→* {a} {M} afreeM)) a#M)
-    a≢d : a ≢ d 
-    a≢d = auxa≢d a b d a≢b afreeM d#ƛbM 
+    a≢d : a ≢ d
+    a≢d = auxa≢d a b d a≢b afreeM d#ƛbM
     a∈fv（bd）M : a ∈ fv (（ b ∙ d ） M)
     a∈fv（bd）M = PffvaπM [(b , d)] (lemmaFreeSwap M a b d a≢b a≢d afreeM)
-    prf≡ : (λ y → not (⌊ d ≟ₐ y ⌋)) a ≡ true
+    prf≡ : d ≢ a
     prf≡ with d ≟ₐ a
     ... | yes d≡a = ⊥-elim (a≢d (sym d≡a))
-    ... | no  d≢a = refl
+    ... | no  d≢a = d≢a
 \end{code}
 
 \begin{code}
@@ -275,18 +276,16 @@ lemma∉fv→# {a} {M} a∉fvM with a #? M
 \end{code}
 
 \begin{code}
-lemma∈fvM→a∈fvƛbM : ∀ {a b M} → a ≢ b → a ∈ fv M →  a ∈ fv (ƛ b M) 
+lemma∈fvM→a∈fvƛbM : ∀ {a b M} → a ≢ b → a ∈ fv M →  a ∈ fv (ƛ b M)
 lemma∈fvM→a∈fvƛbM {a} {b} {M} a≢b a∈fvM = lemmaffv {a} {ƛ b M} (lemmaƛfree {b} {a} {M} (lemmafvf {a} {M} a∈fvM) a≢b)
 --
 lemma∈fvƛbM→a∈fvM : ∀ {a b M} → a ≢ b → a ∈ fv (ƛ b M) → a ∈ fv M
 lemma∈fvƛbM→a∈fvM {a} {b} {M} a≢b a∈fvƛbM rewrite lemmafvƛ b M
-  with χ [] (ƛ b M) | lemmafilter→ a (fv (（ b ∙ χ [] (ƛ b M) ） M)) (λ y → not (⌊ χ [] (ƛ b M) ≟ₐ y ⌋)) a∈fvƛbM  
+  with χ [] (ƛ b M) | ∈-filter⁻ (λ y → ¬? (χ [] (ƛ b M) ≟ₐ y)) {xs = fv (（ b ∙ χ [] (ƛ b M) ） M)} a∈fvƛbM
 ... | c | ¬a≟c=true , a∈fv（bc）M with a ≟ₐ c
-lemma∈fvƛbM→a∈fvM {a} {b} {M} a≢b a∈fvƛbM | .a | ¬a≟a=true , a∈fv（ba）M  | yes refl with a ≟ₐ a
-lemma∈fvƛbM→a∈fvM {a} {b} {M} a≢b a∈fvƛbM | .a | () , a∈fv（ba）M  | yes refl | yes _
-lemma∈fvƛbM→a∈fvM {a} {b} {M} a≢b a∈fvƛbM | .a | _ , a∈fv（ba）M  | yes refl | no a≢a = ⊥-elim (a≢a refl)
-lemma∈fvƛbM→a∈fvM {a} {b} {M} a≢b a∈fvƛbM | c  | _ , a∈fv（bc）M  | no a≢c 
-    =  lemmaffv {a} {M} (lemmaFreeSwap2 M a b c a≢b a≢c (lemmafvf {a} {（ b ∙ c ） M} a∈fv（bc）M) ) 
+lemma∈fvƛbM→a∈fvM {a} {b} {M} a≢b a∈fvƛbM | .a | a∈fv（ba）M , a≢a | yes refl = ⊥-elim (a≢a refl)
+lemma∈fvƛbM→a∈fvM {a} {b} {M} a≢b a∈fvƛbM | c  | a∈fv（bc）M , _ | no a≢c
+    =  lemmaffv {a} {M} (lemmaFreeSwap2 M a b c a≢b a≢c (lemmafvf {a} {（ b ∙ c ） M} a∈fv（bc）M) )
 \end{code}
 
 \begin{code}
@@ -295,7 +294,7 @@ lemmafvswap→ {a} {b} {c} {M} a≢b a≢c a∈fvM =  lemmaffv {a} {（ b ∙ c 
 \end{code}
 
 \begin{code}
-lemmafvswap← : ∀ {a b c M} → a ≢ b → a ≢ c → a ∈ fv (（ b ∙ c ） M) → a ∈ fv M 
+lemmafvswap← : ∀ {a b c M} → a ≢ b → a ≢ c → a ∈ fv (（ b ∙ c ） M) → a ∈ fv M
 lemmafvswap← {a} {b} {c} {M} a≢b a≢c a∈fv（bc）M = lemmaffv {a} {M} (lemmaFreeSwap2 M a b c a≢b a≢c (lemmafvf {a} {（ b ∙ c ） M} a∈fv（bc）M))
 \end{code}
 
@@ -310,29 +309,27 @@ Pfv* a M = a ∈ fv M → a * M
 
 \begin{code}
 αCompatiblePfv* : ∀ a → αCompatiblePred (Pfv* a)
-αCompatiblePfv* a M∼N a∈fvM→a*M a∈fvN 
+αCompatiblePfv* a M∼N a∈fvM→a*M a∈fvN
   rewrite lemma∼αfv M∼N = lemma∼α* M∼N (a∈fvM→a*M a∈fvN)
---
+
 lemmafv* : ∀ {a} {M} → Pfv* a M
 lemmafv* {a} {M} = TermαIndPerm (Pfv* a) (αCompatiblePfv* a) lemmav lemma· ([ a ] , lemmaƛ) M
   where
   lemmav : (b : Atom) → Pfv* a (v b)
   lemmav .a  (here refl) = *v
-  lemmav b   (there ()) 
+  lemmav b   (there ())
   lemma· : (M N : Λ) → Pfv* a M → Pfv* a N → Pfv* a (M · N)
   lemma· M N PM PN a∈fvM·N
-    with c∈xs++ys→c∈xs∨c∈ys {a} {fv M} {fv N} a∈fvM·N 
+    with ∈-++⁻ (fv M) a∈fvM·N
   ... | inj₁ a∈fvM = *·l (PM a∈fvM)
   ... | inj₂ a∈fvN = *·r (PN a∈fvN)
-  lemmaƛ : (M : Λ) (b : ℕ) → b ∉ [ a ] → (∀ π → Pfv* a (π ∙ M)) → Pfv* a (ƛ b M)
-  lemmaƛ M b b∉[a] f a∈fvƛbM 
+  lemmaƛ : (M : Λ) (b : Atom) → b ∉ [ a ] → (∀ π → Pfv* a (π ∙ M)) → Pfv* a (ƛ b M)
+  lemmaƛ M b b∉[a] f a∈fvƛbM
     rewrite lemmafvƛ b M
-    with χ [] (ƛ b M) | lemmafilter→ a (fv (（ b ∙ χ [] (ƛ b M) ） M)) (λ y → not (⌊ χ [] (ƛ b M) ≟ₐ y ⌋)) a∈fvƛbM  
+    with χ [] (ƛ b M) | ∈-filter⁻ (λ y → ¬? (χ [] (ƛ b M) ≟ₐ y)) {xs = fv (（ b ∙ χ [] (ƛ b M) ） M)} a∈fvƛbM
   ... | c | ¬a≟c=true , a∈fv（bc）M with a ≟ₐ c
-  lemmaƛ M b b∉[a] f a∈fvƛbM | .a | ¬a≟a=true , a∈fv（ba）M  | yes refl with a ≟ₐ a
-  lemmaƛ M b b∉[a] f a∈fvƛbM | .a | () , a∈fv（ba）M  | yes refl | yes _
-  lemmaƛ M b b∉[a] f a∈fvƛbM | .a | _ , a∈fv（ba）M  | yes refl | no a≢a = ⊥-elim (a≢a refl)
-  lemmaƛ M b b∉[a] f a∈fvƛbM | c  | _ , a∈fv（bc）M  | no a≢c 
+  lemmaƛ M b b∉[a] f a∈fvƛbM | .a | a∈fv（ba）M , a≢a  | yes refl = ⊥-elim (a≢a refl)
+  lemmaƛ M b b∉[a] f a∈fvƛbM | c  | a∈fv（bc）M  , _ | no a≢c
     = *ƛ (lemma*swap←≢ (sym≢ b≢a) a≢c  (f [(b , c)] a∈fv（bc）M)) b≢a
     where
     b≢a : b ≢ a
@@ -341,7 +338,7 @@ lemmafv* {a} {M} = TermαIndPerm (Pfv* a) (αCompatiblePfv* a) lemmav lemma· ([
 
 \begin{code}
 #→∉fv : {a : Atom}{M : Λ} → a # M → a ∉ fv M
-#→∉fv {a} {M} a#M with any (_≟ₐ_ a) (fv M)
+#→∉fv {a} {M} a#M with Any.any? (_≟ₐ_ a) (fv M)
 ... | yes a∈fvM = ⊥-elim (lemma-#→¬* a#M (lemmafv* a∈fvM))
 ... | no  a∉fvM = a∉fvM
 \end{code}

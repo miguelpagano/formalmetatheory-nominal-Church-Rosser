@@ -280,10 +280,12 @@ lemma∙cancel {a} {b} {c} {v d}    (∉v d≢b)      (∉v d≢c)       = cong 
 lemma∙cancel {a} {b} {c} {M · N}  (∉· b∉M b∉N)  (∉· c∉M c∉N)   = cong₂ _·_  (lemma∙cancel b∉M c∉M)   (lemma∙cancel b∉N c∉N)
 lemma∙cancel {a} {b} {c} {ƛ d M}  (∉ƛ d≢b b∉M)  (∉ƛ d≢c c∉M)   = cong₂ ƛ    (lemma∙ₐcancel d≢b d≢c)  (lemma∙cancel b∉M c∉M)
 --
+_-ₐ_ = _-_ {A = Atom} {_≟ₐ_}
+
 fv : Λ → List Atom
 fv (v a)     = [ a ]
 fv (M · N)   = fv M ++ fv N
-fv (ƛ a M)   = _-_ {A = Atom} {_≟ₐ_} (fv M) a
+fv (ƛ a M)   = fv M -ₐ a
 --
 lemmafvfree→ : (x : Atom)(M : Λ) → x ∈ fv M → x * M
 lemmafvfree→ x (v y)    (here x≡y) with y ≟ₐ x

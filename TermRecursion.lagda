@@ -5,20 +5,24 @@ open import Relation.Binary.PropositionalEquality hiding ([_])
 module TermRecursion (Atom : Set) (_≟ₐ_ : Decidable {A = Atom} _≡_) where
 
 open import Term Atom _≟ₐ_
-open import Alpha
+open import Alpha Atom _≟ₐ_ hiding (step-≡)
 open import TermAcc Atom _≟ₐ_
 open import ListProperties
--- open import TermInduction
+open import TermInduction Atom _≟ₐ_
 open import Permutation Atom _≟ₐ_
 
 open import Level
-open import Data.Nat
-open import Data.Nat.Properties
 open import Function
-open import Data.List 
-open import Data.List.Any as Any hiding (map)
+
+open import Data.List
+open import Data.List.Properties
+open import Data.List.Relation.Unary.Any as Any hiding (map)
+open import Data.List.Relation.Unary.Any.Properties
 open import Data.List.Membership.Propositional
 open import Data.List.Membership.Propositional.Properties
+open import Relation.Binary.PropositionalEquality as PropEq hiding ([_])
+open import Data.List.Relation.Binary.Subset.Propositional
+open import Data.List.Relation.Binary.Subset.Propositional.Properties  hiding (++⁺ˡ;++⁺ʳ)
 open import Data.Product
 open import Relation.Binary.PropositionalEquality as PropEq hiding ([_])
 open PropEq.≡-Reasoning renaming (begin_ to begin≡_;_∎ to _□)
@@ -31,7 +35,7 @@ Iteration principle done using the induction based on swaps (done with primitive
 ΛIt  : {l : Level}(A : Set l)
     → (Atom → A)
     → (A → A → A)
-    → List Atom × (Atom → A → A) 
+    → List Atom × (Atom → A → A)
 --    → Σ (List Atom) (λ vs → (a : Atom) → a ∉ vs → A → A)
     → Λ → A
 \end{code}
@@ -40,11 +44,11 @@ Iteration principle done using the induction based on swaps (done with primitive
 
 %<*termIterationCode>
 \begin{code}
-ΛIt A hv h· (vs , hƛ) 
-    = TermαPrimInd  (λ _ → A) 
-                    (λ _ → id) 
-                    hv 
-                    (λ _ _ → h·) 
+ΛIt A hv h· (vs , hƛ)
+    = TermαPrimInd  (λ _ → A)
+                    (λ _ → id)
+                    hv
+                    (λ _ _ → h·)
                     (vs , (λ _ b _ r → hƛ b r))
 \end{code}
 %</termIterationCode>
@@ -70,16 +74,16 @@ aux : {l : Level}(A : Set l)
     → (vs : List Atom)
     → (hƛ : Atom → A → A)
     → ∀ M → P A hv h· vs hƛ M
-aux A hv h· vs hƛ M π rewrite lemmaxs++[]≡xs π 
+aux A hv h· vs hƛ M π rewrite ++-identityʳ π
     = TermIndPerm (P A hv h· vs hƛ) lemmav lemma· lemmaƛ M π
     where
-    lemmav : (a : ℕ) → P A hv h· vs hƛ (v a)
+    lemmav : (a : Atom) → P A hv h· vs hƛ (v a)
     lemmav a π rewrite lemmaπv {a} {π} = refl
     lemma· :  (M N : Λ) → P A hv h· vs hƛ M → P A hv h· vs hƛ N → P A hv h· vs hƛ (M · N)
     lemma· M N PM PN π rewrite lemmaπ· {M} {N} {π} = cong₂ h· (PM π) (PN π)
-    lemmaƛ :  (M : Λ) (b : ℕ) → ((π : List (Atom × Atom)) → P A hv h· vs hƛ (π ∙ M)) 
+    lemmaƛ :  (M : Λ) (b : Atom) → ((π : List (Atom × Atom)) → P A hv h· vs hƛ (π ∙ M))
               → P A hv h· vs hƛ (ƛ b M)
-    lemmaƛ M a PMπ π rewrite lemmaπƛ {a} {M} {π} 
+    lemmaƛ M a PMπ π rewrite lemmaπƛ {a} {M} {π}
       = cong₂ hƛ refl (begin≡
                       Paux A hv h· vs hƛ M ((π ∙ₐ a ,  χ vs (ƛ (π ∙ₐ a) (π ∙ M))) ∷ π)
                     ≡⟨ PMπ [] ((π ∙ₐ a ,  χ vs (ƛ (π ∙ₐ a) (π ∙ M))) ∷ π)  ⟩
@@ -100,15 +104,15 @@ aux A hv h· vs hƛ M π rewrite lemmaxs++[]≡xs π
         → (h· : A → A → A)
         → (vs : List Atom)
         → (hƛ : Atom → A → A)
-        → ∀ a M 
-        → ΛIt A hv h· (vs , hƛ) (ƛ a M) ≡ 
-        hƛ  (χ vs (ƛ a M)) 
+        → ∀ a M
+        → ΛIt A hv h· (vs , hƛ) (ƛ a M) ≡
+        hƛ  (χ vs (ƛ a M))
             (ΛIt A hv h· (vs , hƛ) ([ a , (χ vs (ƛ a M))] ∙ M))
 \end{code}
 %</itlambda>
 
 \begin{code}
-ΛItƛ A hv h· vs hƛ a M 
+ΛItƛ A hv h· vs hƛ a M
        = cong₂ hƛ refl (aux A hv h· vs hƛ M [ a , χ vs (ƛ a M)]) --
 \end{code}
 
@@ -119,47 +123,47 @@ lemmaΛItStrongαCompatible : {l : Level}(A : Set l)
                             → (h· : A → A → A)
                             → (vs : List Atom)
                             → (hƛ : Atom → A → A )
-                            → (M : Λ) → strong∼αCompatible (ΛIt A hv h· (vs , hƛ)) M 
+                            → (M : Λ) → strong∼αCompatible (ΛIt A hv h· (vs , hƛ)) M
 \end{code}
 %</iterationStrongCompatible>
 
 \begin{code}
-lemmaΛItStrongαCompatible A hv h· xs hƛ 
-    = TermIndPerm (strong∼αCompatible (ΛIt A hv h· (xs , hƛ))) lemmav lemma· lemmaƛ  
+lemmaΛItStrongαCompatible A hv h· xs hƛ
+    = TermIndPerm (strong∼αCompatible (ΛIt A hv h· (xs , hƛ))) lemmav lemma· lemmaƛ
     where
-    lemmav :  (a : ℕ) → strong∼αCompatible (ΛIt A hv h· (xs , hƛ)) (v a)
+    lemmav :  (a : Atom) → strong∼αCompatible (ΛIt A hv h· (xs , hƛ)) (v a)
     lemmav a .(v a) ∼αv = refl
     lemma· :  (M N : Λ)
-              → strong∼αCompatible (ΛIt A hv h· (xs , hƛ)) M 
-              → strong∼αCompatible (ΛIt A hv h· (xs , hƛ)) N 
+              → strong∼αCompatible (ΛIt A hv h· (xs , hƛ)) M
+              → strong∼αCompatible (ΛIt A hv h· (xs , hƛ)) N
               → strong∼αCompatible (ΛIt A hv h· (xs , hƛ)) (M · N)
-    lemma· M N PM PN .(M' · N') (∼α· {.M} {M'} {.N} {N'} M∼M' N∼N') 
+    lemma· M N PM PN .(M' · N') (∼α· {.M} {M'} {.N} {N'} M∼M' N∼N')
       = cong₂ h· (PM M' M∼M') (PN N' N∼N')
-    lemmaƛ :  (M : Λ) (b : ℕ) 
-              → ((π : List (Atom × Atom)) → strong∼αCompatible (ΛIt A hv h· (xs , hƛ)) (π ∙ M)) 
+    lemmaƛ :  (M : Λ) (b : Atom)
+              → ((π : List (Atom × Atom)) → strong∼αCompatible (ΛIt A hv h· (xs , hƛ)) (π ∙ M))
               → strong∼αCompatible (ΛIt A hv h· (xs , hƛ)) (ƛ b M)
-    lemmaƛ M a PπM .(ƛ b N) (∼αƛ {.M} {N} {.a} {b} vs fα) 
-      rewrite 
-         ΛItƛ A hv h· xs hƛ a M 
-      |  ΛItƛ A hv h· xs hƛ b N 
-      with χ xs (ƛ a M) | χ xs (ƛ b N) 
-      |  χ# xs (ƛ a M) | χ# xs (ƛ b N) 
-      |  χ∼α  (ƛ a M) (ƛ b N) xs (∼αƛ {M} {N} {a} {b} vs fα)  
-      |  χ' (vs ++ ocurr (M · N)) | lemmaχ∉ (vs ++ ocurr (M · N))
-    ... | c | .c | c#λaM | c#λbN | refl | d | d∉vs++ocurrM·N 
+    lemmaƛ M a PπM .(ƛ b N) (∼αƛ {.M} {N} {.a} {b} vs fα)
+      rewrite
+         ΛItƛ A hv h· xs hƛ a M
+      |  ΛItƛ A hv h· xs hƛ b N
+      with χ xs (ƛ a M) | χ xs (ƛ b N)
+      |  χ# xs (ƛ a M) | χ# xs (ƛ b N)
+      |  χ∼α  (ƛ a M) (ƛ b N) xs (∼αƛ {M} {N} {a} {b} vs fα)
+      |  χ' (vs ++ Λ-atoms (M · N)) | lemmaχ∉ (vs ++ Λ-atoms (M · N))
+    ... | c | .c | c#λaM | c#λbN | refl | d | d∉vs++Λ-atomsM·N
       = cong₂ hƛ refl (PπM [(a , c)] (（ b ∙ c ） N) （ac）M∼α（bc）N)
       where
       d∉vs : d ∉ vs
-      d∉vs = c∉xs++ys→c∉xs {d} {vs} {ocurr (M · N)} d∉vs++ocurrM·N
+      d∉vs = ∉-++⁻ˡ vs d∉vs++Λ-atomsM·N
       d∉M : d ∉ₜ M
-      d∉M = lemmaocurr (c∉xs++ys→c∉xs {d} {ocurr M} {ocurr N} (c∉xs++ys→c∉ys {d} {vs} {ocurr (M · N)} d∉vs++ocurrM·N)) 
+      d∉M = lemmaΛ-atoms (∉-++⁻ˡ (Λ-atoms M) (∉-++⁻ʳ vs d∉vs++Λ-atomsM·N))
       d∉N : d ∉ₜ N
-      d∉N = lemmaocurr (c∉xs++ys→c∉ys {d} {ocurr M} {ocurr N} (c∉xs++ys→c∉ys {d} {vs} {ocurr (M · N)} d∉vs++ocurrM·N)) 
+      d∉N = lemmaΛ-atoms (∉-++⁻ʳ (Λ-atoms M) (∉-++⁻ʳ vs d∉vs++Λ-atomsM·N))
       （ac）M∼α（bc）N : （ a ∙ c ） M ∼α （ b ∙ c ） N
       （ac）M∼α（bc）N =  begin
-                           （ a ∙ c ） M 
+                           （ a ∙ c ） M
                          ∼⟨ σ (lemma∙ c#λaM d∉M) ⟩
-                           （ d ∙ c ） （ a ∙ d ） M 
+                           （ d ∙ c ） （ a ∙ d ） M
                          ∼⟨ lemma∼αEquiv [(d , c)] (fα d d∉vs) ⟩
                            （ d ∙ c ） （ b ∙ d ） N
                          ∼⟨ lemma∙ c#λbN d∉N ⟩
@@ -175,10 +179,10 @@ lemmaΛItEquiv# : {l : Level}(A : Set l)
     → (h· : A → A → A)
     → (vs : List Atom)
     → (hƛ : Atom → A → A )
-    → (M : Λ)(a b : Atom) 
-    → a # M → b # M 
+    → (M : Λ)(a b : Atom)
+    → a # M → b # M
     → ΛIt A hv h· (vs , hƛ) M ≡ ΛIt A hv h· (vs , hƛ) (（ a ∙ b ） M)
-lemmaΛItEquiv# A hv h· vs hƛ M a b a#M b#M 
+lemmaΛItEquiv# A hv h· vs hƛ M a b a#M b#M
     = lemmaΛItStrongαCompatible A hv h· vs hƛ M (（ a ∙ b ） M) (lemma#∼α a#M b#M)
 \end{code}
 
@@ -189,24 +193,24 @@ idΛ : List Atom → Λ → Λ
 idΛ vs = ΛIt Λ v _·_ (vs , ƛ)
 --
 idΛα : {M : Λ}{vs : List Atom} → M ∼α idΛ vs M
-idΛα {M} {vs} = TermIndPerm  (λ M → M ∼α idΛ vs M) 
-                             (λ _                  → ∼αv) 
-                             (λ M N M∼idΛM N∼idΛN  → ∼α· M∼idΛM N∼idΛN) 
-                             lemmaƛ 
+idΛα {M} {vs} = TermIndPerm  (λ M → M ∼α idΛ vs M)
+                             (λ _                  → ∼αv)
+                             (λ M N M∼idΛM N∼idΛN  → ∼α· M∼idΛM N∼idΛN)
+                             lemmaƛ
                              M
        where
-       lemmaƛ :  (M : Λ) (a : ℕ) 
-              → ((π : List (Atom × Atom)) → π ∙ M ∼α idΛ vs (π ∙ M)) 
+       lemmaƛ :  (M : Λ) (a : Atom)
+              → ((π : List (Atom × Atom)) → π ∙ M ∼α idΛ vs (π ∙ M))
               → ƛ a M ∼α idΛ vs (ƛ a M)
-       lemmaƛ M a hi 
+       lemmaƛ M a hi
          rewrite ΛItƛ Λ v _·_ vs ƛ a M
            =  begin
-             ƛ a M 
+             ƛ a M
            ∼⟨ lemma∼λχ {a} {vs} {M} ⟩
              ƛ (χ vs (ƛ a M )) (（ a ∙ (χ vs (ƛ a M )) ） M)
            ∼⟨ lemma∼αƛ (hi [ a , χ vs (ƛ a M ) ]) ⟩
            ƛ (χ vs (ƛ a M )) (idΛ vs (（ a ∙ (χ vs (ƛ a M )) ） M))
-         ∎  
+         ∎
 \end{code}
 
 Term recursion principle
@@ -224,7 +228,7 @@ abs hƛ a (r , M) = hƛ a r M , ƛ a M
 ΛRec  : {l : Level}(A : Set l)
         → (Atom → A)
         → (A → A → Λ → Λ → A)
-        → List Atom × (Atom → A → Λ → A) 
+        → List Atom × (Atom → A → Λ → A)
         → Λ → A
 \end{code}
 %</termRecursion>
@@ -247,9 +251,9 @@ abs hƛ a (r , M) = hƛ a r M , ƛ a M
       → (h· : A → A → Λ → Λ → A)
       → (vs : List Atom)
       → (hƛ : Atom → A → Λ → A)
-      → ∀ M N 
-      → ΛRec A hv h· (vs , hƛ) (M · N) ≡ 
-        proj₁ (app h·  (ΛIt (A × Λ) < hv , v > (app h·) (vs , (abs hƛ)) M) 
+      → ∀ M N
+      → ΛRec A hv h· (vs , hƛ) (M · N) ≡
+        proj₁ (app h·  (ΛIt (A × Λ) < hv , v > (app h·) (vs , (abs hƛ)) M)
                        (ΛIt (A × Λ) < hv , v > (app h·) (vs , (abs hƛ)) N))
 ΛRec· A hv h· vs hƛ M N = refl
 
@@ -258,12 +262,12 @@ abs hƛ a (r , M) = hƛ a r M , ƛ a M
       → (h· : A → A → Λ → Λ → A)
       → (vs : List Atom)
       → (hƛ : Atom → A → Λ → A)
-      → ∀ a M 
-      → ΛRec A hv h· (vs , hƛ) (ƛ a M) ≡ 
+      → ∀ a M
+      → ΛRec A hv h· (vs , hƛ) (ƛ a M) ≡
         proj₁ (abs hƛ (χ vs (ƛ a M)) (ΛIt (A × Λ) < hv , v > (app h·) (vs , (abs hƛ)) ([ a , (χ vs (ƛ a M))] ∙ M)))
-ΛRecƛ A hv h· vs hƛ a M 
+ΛRecƛ A hv h· vs hƛ a M
      =  begin≡
-       ΛRec A hv h· (vs , hƛ) (ƛ a M) 
+       ΛRec A hv h· (vs , hƛ) (ƛ a M)
      ≡⟨ refl ⟩
        proj₁ (ΛIt (A × Λ) < hv , v > (app h·) (vs , (abs hƛ)) (ƛ a M))
      ≡⟨ cong proj₁ (ΛItƛ (A × Λ) < hv , v > (app h·) vs (abs hƛ) a M) ⟩
@@ -276,7 +280,7 @@ lemmaΛRecStrongαCompatible : {l : Level}(A : Set l)
     → (h· : A → A → Λ → Λ → A)
     → (hƛ : List Atom × (Atom → A → Λ → A) )
     → ∀ M → strong∼αCompatible (ΛRec  A hv h· hƛ) M
-lemmaΛRecStrongαCompatible A hv h· (xs , hƛ) M N M∼αN 
+lemmaΛRecStrongαCompatible A hv h· (xs , hƛ) M N M∼αN
   rewrite lemmaΛItStrongαCompatible (A × Λ) < hv , v > (app h·) xs (abs hƛ) M N M∼αN = refl
 \end{code}
 
@@ -285,16 +289,16 @@ lemmaΛRecEquiv# : {l : Level}(A : Set l)
     → (hv : Atom → A)
     → (h· : A → A → Λ → Λ → A)
     → (hƛ : List Atom × (Atom → A → Λ → A) )
-    → (M : Λ)(a b : Atom) 
-    → a # M → b # M 
+    → (M : Λ)(a b : Atom)
+    → a # M → b # M
     → ΛRec A hv h· hƛ M ≡ ΛRec A hv h· hƛ (（ a ∙ b ） M)
-lemmaΛRecEquiv# A hv h· (xs , hƛ) M a b a#M b#M 
+lemmaΛRecEquiv# A hv h· (xs , hƛ) M a b a#M b#M
   rewrite lemmaΛItEquiv# (A × Λ) < hv , v > (app h·) xs (abs hƛ) M a b a#M b#M = refl
---  
+--
 ΛRec2  : {l : Level}(A : Set l)
         → (Atom → A)
         → (A → A → Λ → Λ → A)
-        → List Atom × (Atom → A → Λ → A) 
+        → List Atom × (Atom → A → Λ → A)
         → Λ → Λ
 ΛRec2 A hv h· (xs , hƛ) M = proj₂ (ΛIt (A × Λ) < hv , v > (app h·) (xs , (abs hƛ)) M)
 --
@@ -310,14 +314,14 @@ lemmaΛRecEquiv# A hv h· (xs , hƛ) M a b a#M b#M
                                        (λ M N hiM hiN → cong₂ _·_ hiM hiN)
                                        lemmaƛ
       where
-      lemmaƛ :  (M : Λ) (x : ℕ)
-                → ((π : List (Atom × Atom)) → ΛRec2 A hv h· (vs , hƛ) (π ∙ M) ≡ idΛ vs (π ∙ M)) 
+      lemmaƛ :  (M : Λ) (x : Atom)
+                → ((π : List (Atom × Atom)) → ΛRec2 A hv h· (vs , hƛ) (π ∙ M) ≡ idΛ vs (π ∙ M))
                 →  ΛRec2 A hv h· (vs , hƛ) (ƛ x M) ≡ idΛ vs (ƛ x M)
-      lemmaƛ M x hi 
+      lemmaƛ M x hi
         rewrite  ΛItƛ (A × Λ) < hv , v > (app h·) vs (abs hƛ) x M
-        |        ΛItƛ Λ v _·_ vs ƛ x M 
+        |        ΛItƛ Λ v _·_ vs ƛ x M
         |        aux (A × Λ) < hv , v > (app h·) vs (abs hƛ) M [ x , χ vs (ƛ x M)]
-        = cong (λ N → ƛ (χ vs (ƛ x M)) N) (hi [ x , χ vs (ƛ x M) ])  
+        = cong (λ N → ƛ (χ vs (ƛ x M)) N) (hi [ x , χ vs (ƛ x M) ])
 --
 ΛRec2α  : {l : Level}(A : Set l)
       → (hv : Atom → A)
@@ -325,7 +329,7 @@ lemmaΛRecEquiv# A hv h· (xs , hƛ) M a b a#M b#M
       → (vs : List Atom)
       → (hƛ : Atom → A → Λ → A)
       → ∀ M
-      → M ∼α ΛRec2 A hv h· (vs , hƛ) M 
+      → M ∼α ΛRec2 A hv h· (vs , hƛ) M
 ΛRec2α A hv h· vs hƛ M
     rewrite ΛRec2Id A hv h· vs hƛ M = idΛα {M} {vs}
 \end{code}
@@ -336,10 +340,10 @@ lemmaΛRecEquiv# A hv h· (xs , hƛ) M a b a#M b#M
       → (h· : A → A → Λ → Λ → A)
       → (vs : List Atom)
       → (hƛ : Atom → A → Λ → A)
-      → ∀ M N 
+      → ∀ M N
       → ∃ (λ M' → ∃ (λ N' →  M ∼α M' × N ∼α N'    ×
                              ΛRec A hv h· (vs , hƛ) (M · N) ≡ h· (ΛRec A hv h· (vs , hƛ) M) (ΛRec A hv h· (vs , hƛ) N) M' N'))
-ΛRec·' A hv h· vs hƛ M N 
+ΛRec·' A hv h· vs hƛ M N
     =   ΛRec2 A hv h· (vs , hƛ) M  ,
         ΛRec2 A hv h· (vs , hƛ) N  ,
         ΛRec2α A hv h· vs hƛ M     ,
@@ -351,20 +355,20 @@ lemmaΛRecEquiv# A hv h· (xs , hƛ) M a b a#M b#M
       → (h· : A → A → Λ → Λ → A)
       → (vs : List Atom)
       → (hƛ : Atom → A → Λ → A)
-      → ∀ a M 
+      → ∀ a M
       → ∃ (λ N →  （ a ∙ χ vs (ƛ a M) ） M ∼α N     ×
                   ΛRec A hv h· (vs , hƛ) (ƛ a M) ≡ hƛ (χ vs (ƛ a M)) (ΛRec A hv h· (vs , hƛ) (（ a ∙ (χ vs (ƛ a M)) ） M)) N)
-ΛRecƛ' A hv h· vs hƛ a M 
-    rewrite ΛRecƛ A hv h· vs hƛ a M 
+ΛRecƛ' A hv h· vs hƛ a M
+    rewrite ΛRecƛ A hv h· vs hƛ a M
     =  ΛRec2 A hv h· (vs , hƛ) (（ a ∙ χ vs (ƛ a M) ） M)  ,
        ΛRec2α A hv h· vs hƛ (（ a ∙ χ vs (ƛ a M) ） M)     ,
        refl
 
-  -- Another equivalent signature using lemma∼λχ : {a : Atom}{vs : List Atom}{M : Λ} → ƛ a M ∼α ƛ (χ vs (ƛ a M)) (（ a ∙ (χ vs (ƛ a M)) ） M)  
+  -- Another equivalent signature using lemma∼λχ : {a : Atom}{vs : List Atom}{M : Λ} → ƛ a M ∼α ƛ (χ vs (ƛ a M)) (（ a ∙ (χ vs (ƛ a M)) ） M)
   --     → ∃ (λ N →  ƛ a M ∼α ƛ (χ vs (ƛ a M)) N     ×
   --                 ΛRec A hv h· (vs , hƛ) (ƛ a M) ≡ hƛ (χ vs (ƛ a M)) (ΛRec A hv h· (vs , hƛ) (（ a ∙ (χ vs (ƛ a M)) ） M)) N)
-  -- ΛRecƛ' A hv h· vs hƛ a M 
-  --   rewrite ΛRecƛ A hv h· vs hƛ a M 
+  -- ΛRecƛ' A hv h· vs hƛ a M
+  --   rewrite ΛRecƛ A hv h· vs hƛ a M
   --   =  ΛRec2 A hv h· (vs , hƛ) (（ a ∙ χ vs (ƛ a M) ） M)  ,
   --      (begin
   --        ƛ a M
@@ -373,7 +377,7 @@ lemmaΛRecEquiv# A hv h· (xs , hƛ) M a b a#M b#M
   --      ∼⟨ lemma∼αƛ (ΛRec2α A hv h· vs hƛ (（ a ∙ χ vs (ƛ a M) ） M)) ⟩
   --        ƛ (χ vs (ƛ a M)) (ΛRec2 A hv h· (vs , hƛ) (（ a ∙ χ vs (ƛ a M) ） M))
   --      ∎)                                                  ,
-  --      refl 
+  --      refl
 
 
 
@@ -384,7 +388,7 @@ lemmaΛRecEquiv# A hv h· (xs , hƛ) M a b a#M b#M
 -- Λ2It  : {l : Level}(A : Set l)
 --  → (Atom → Atom → A)
 --  → (A → A → A → A → A)
---  → List Atom × (Atom → A → Atom → A → A) 
+--  → List Atom × (Atom → A → Atom → A → A)
 --  → Λ → Λ → A
 -- \end{code}
 -- %</twotermsIteration>
@@ -392,13 +396,11 @@ lemmaΛRecEquiv# A hv h· (xs , hƛ) M a b a#M b#M
 
 -- %<*twotermsIterationCode>
 -- \begin{code}
--- Λ2It A hv h· (vs , hƛ) 
---   = TermαPrimInd  (λ _ → A) 
---                   (λ _ → id) 
---                   hv 
---                   (λ _ _ → h·) 
+-- Λ2It A hv h· (vs , hƛ)
+--   = TermαPrimInd  (λ _ → A)
+--                   (λ _ → id)
+--                   hv
+--                   (λ _ _ → h·)
 --                   (vs , (λ _ b _ r → hƛ b r))
 -- \end{code}
 -- %</twotermsIterationCode>
-
-

@@ -1,33 +1,39 @@
 \begin{code}
-module Beta where
+open import Relation.Binary.Definitions using (Decidable)
+open import Relation.Binary.PropositionalEquality using (_≡_)
 
-open import Atom
-open import Chi
-open import Term
-open import Substitution
-open import Alpha
-open import Relation Λ hiding (_++_) renaming (_⊆_ to _⊆R_)
-open import NaturalProperties
+module Beta (Atom : Set) (_≟ₐ_ : Decidable {A = Atom} _≡_) where
 
+open import AtomAbs Atom _≟ₐ_
+open import Term Atom _≟ₐ_ hiding (fv)
+open import Alpha Atom _≟ₐ_ hiding (step-≡)
+open import TermAcc Atom _≟ₐ_
 open import ListProperties
+open import TermInduction Atom _≟ₐ_
+open import TermRecursion Atom _≟ₐ_
+open import Substitution Atom _≟ₐ_
+open import FreeVariables Atom _≟ₐ_
+open import Relation Λ hiding (_++_) renaming (_⊆_ to _⊆R_)
 
 open import Data.Empty
-open import Data.Sum
-open import Data.Nat hiding (_*_)
+open import Data.Sum renaming (_⊎_ to _∨_)
+open import Data.List
+open import Data.List.Relation.Unary.Any as Any hiding (map)
+open import Data.List.Relation.Unary.Any.Properties
+open import Data.List.Membership.Propositional
+open import Data.List.Membership.Propositional.Properties
+open import Relation.Binary.PropositionalEquality as PropEq hiding ([_];trans)
+
 open import Relation.Nullary
-open import Relation.Binary hiding (Rel)
+open import Relation.Nullary.Decidable
+open import Relation.Nullary.Negation
+
 open import Function hiding (_∘_)
 open import Data.Product renaming (Σ to Σₓ)
 open import Relation.Binary.PropositionalEquality as PropEq
   using (_≡_; _≢_; refl; sym; cong; cong₂; setoid)
 open PropEq.≡-Reasoning renaming (begin_ to begin≡_;_∎ to _◻)
-open import Data.List hiding (any) renaming (length to length') 
-open import Data.List.Properties
-open import Data.List.Any as Any hiding (map)
-open import Data.List.Any.Membership
-open Any.Membership-≡ hiding (_⊆_)
-
-infix   1 _▹_ 
+infix   1 _▹_
 \end{code}
 
 Beta contraction
@@ -171,12 +177,3 @@ open PreR →-preorder renaming (begin_ to begin→_;_∼⟨_⟩_ to _→⟨_⟩
 -- lemma⊢→α* Γ⊢M:α (just M→βN)           = lemma⊢→α Γ⊢M:α M→βN
 -- lemma⊢→α* Γ⊢M:α (trans M→α*N N→α*P)   = lemma⊢→α* (lemma⊢→α* Γ⊢M:α M→α*N) N→α*P
 -- \end{code}
-
-
-
-
-
-
-
-
-
