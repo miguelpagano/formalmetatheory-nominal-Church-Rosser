@@ -81,6 +81,10 @@ lemmaΓ++Δ,x⊆Γ,x++Δ {Γ} {Δ} {x} {y} rewrite sym (++-identityʳ Δ)
 ∉-∷⁼ : {A : Set} {a d : A} {xs : List A} → a ∈ xs → d ∉ xs → d ≢ a
 ∉-∷⁼ a∈xs d∉xs d≡a rewrite d≡a = d∉xs a∈xs
 
+∉-∷⁺ : {A : Set} {a d : A} {xs : List A} → d ≢ a → d ∉ xs → d ∉ (a ∷ xs)
+∉-∷⁺ d≢a d∉xs (here px) = d≢a px
+∉-∷⁺ d≢a d∉xs (there d∈a∷xs) = d∉xs d∈a∷xs
+
 ∉-∷⁼ᵗ : {A : Set} {a d : A}{xs : List A} → d ∉ (a ∷ xs) → d ∉ xs
 ∉-∷⁼ᵗ d∉∷ d∈xs = d∉∷ (there d∈xs)
 
