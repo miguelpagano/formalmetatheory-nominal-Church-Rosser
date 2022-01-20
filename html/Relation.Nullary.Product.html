@@ -1,356 +1,39 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"
-><head
-  ><title
-    >Relation.Nullary.Product</title
-    ><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"
-     /><meta http-equiv="Content-Style-Type" content="text/css"
-     /><link href="Agda.css" rel="stylesheet" type="text/css"
-     /></head
-  ><body
-  ><pre
-    ><a name="1" class="Comment"
-      >------------------------------------------------------------------------</a
-      ><a name="73"
-      >
-</a
-      ><a name="74" class="Comment"
-      >-- The Agda standard library</a
-      ><a name="102"
-      >
-</a
-      ><a name="103" class="Comment"
-      >--</a
-      ><a name="105"
-      >
-</a
-      ><a name="106" class="Comment"
-      >-- Products of nullary relations</a
-      ><a name="138"
-      >
-</a
-      ><a name="139" class="Comment"
-      >------------------------------------------------------------------------</a
-      ><a name="211"
-      >
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Relation.Nullary.Product</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Comment">------------------------------------------------------------------------</a>
+<a id="74" class="Comment">-- The Agda standard library</a>
+<a id="103" class="Comment">--</a>
+<a id="106" class="Comment">-- Products of nullary relations</a>
+<a id="139" class="Comment">------------------------------------------------------------------------</a>
 
-</a
-      ><a name="213" class="Keyword"
-      >module</a
-      ><a name="219"
-      > </a
-      ><a name="220" href="Relation.Nullary.Product.html#1" class="Module"
-      >Relation.Nullary.Product</a
-      ><a name="244"
-      > </a
-      ><a name="245" class="Keyword"
-      >where</a
-      ><a name="250"
-      >
+<a id="213" class="Symbol">{-#</a> <a id="217" class="Keyword">OPTIONS</a> <a id="225" class="Pragma">--without-K</a> <a id="237" class="Pragma">--safe</a> <a id="244" class="Symbol">#-}</a>
 
-</a
-      ><a name="252" class="Keyword"
-      >open</a
-      ><a name="256"
-      > </a
-      ><a name="257" class="Keyword"
-      >import</a
-      ><a name="263"
-      > </a
-      ><a name="264" href="Data.Product.html#1" class="Module"
-      >Data.Product</a
-      ><a name="276"
-      >
-</a
-      ><a name="277" class="Keyword"
-      >open</a
-      ><a name="281"
-      > </a
-      ><a name="282" class="Keyword"
-      >import</a
-      ><a name="288"
-      > </a
-      ><a name="289" href="Function.html#1" class="Module"
-      >Function</a
-      ><a name="297"
-      >
-</a
-      ><a name="298" class="Keyword"
-      >open</a
-      ><a name="302"
-      > </a
-      ><a name="303" class="Keyword"
-      >import</a
-      ><a name="309"
-      > </a
-      ><a name="310" href="Relation.Nullary.html#1" class="Module"
-      >Relation.Nullary</a
-      ><a name="326"
-      >
+<a id="249" class="Keyword">module</a> <a id="256" href="Relation.Nullary.Product.html" class="Module">Relation.Nullary.Product</a> <a id="281" class="Keyword">where</a>
 
-</a
-      ><a name="328" class="Comment"
-      >-- Some properties which are preserved by _&#215;_.</a
-      ><a name="374"
-      >
+<a id="288" class="Keyword">open</a> <a id="293" class="Keyword">import</a> <a id="300" href="Data.Bool.Base.html" class="Module">Data.Bool.Base</a>
+<a id="315" class="Keyword">open</a> <a id="320" class="Keyword">import</a> <a id="327" href="Data.Product.html" class="Module">Data.Product</a>
+<a id="340" class="Keyword">open</a> <a id="345" class="Keyword">import</a> <a id="352" href="Function.Base.html" class="Module">Function.Base</a> <a id="366" class="Keyword">using</a> <a id="372" class="Symbol">(</a><a id="373" href="Function.Base.html#1031" class="Function Operator">_∘_</a><a id="376" class="Symbol">)</a>
+<a id="378" class="Keyword">open</a> <a id="383" class="Keyword">import</a> <a id="390" href="Level.html" class="Module">Level</a>
+<a id="396" class="Keyword">open</a> <a id="401" class="Keyword">import</a> <a id="408" href="Relation.Nullary.Reflects.html" class="Module">Relation.Nullary.Reflects</a>
+<a id="434" class="Keyword">open</a> <a id="439" class="Keyword">import</a> <a id="446" href="Relation.Nullary.html" class="Module">Relation.Nullary</a>
 
-</a
-      ><a name="376" class="Keyword"
-      >infixr</a
-      ><a name="382"
-      > </a
-      ><a name="383" class="Number"
-      >2</a
-      ><a name="384"
-      > </a
-      ><a name="385" href="Relation.Nullary.Product.html#394" class="Function Operator"
-      >_&#215;-dec_</a
-      ><a name="392"
-      >
+<a id="464" class="Keyword">private</a>
+  <a id="474" class="Keyword">variable</a>
+    <a id="487" href="Relation.Nullary.Product.html#487" class="Generalizable">p</a> <a id="489" href="Relation.Nullary.Product.html#489" class="Generalizable">q</a> <a id="491" class="Symbol">:</a> <a id="493" href="Agda.Primitive.html#408" class="Postulate">Level</a>
+    <a id="503" href="Relation.Nullary.Product.html#503" class="Generalizable">P</a> <a id="505" class="Symbol">:</a> <a id="507" class="PrimitiveType">Set</a> <a id="511" href="Relation.Nullary.Product.html#487" class="Generalizable">p</a>
+    <a id="517" href="Relation.Nullary.Product.html#517" class="Generalizable">Q</a> <a id="519" class="Symbol">:</a> <a id="521" class="PrimitiveType">Set</a> <a id="525" href="Relation.Nullary.Product.html#489" class="Generalizable">q</a>
 
-</a
-      ><a name="394" href="Relation.Nullary.Product.html#394" class="Function Operator"
-      >_&#215;-dec_</a
-      ><a name="401"
-      > </a
-      ><a name="402" class="Symbol"
-      >:</a
-      ><a name="403"
-      > </a
-      ><a name="404" class="Symbol"
-      >&#8704;</a
-      ><a name="405"
-      > </a
-      ><a name="406" class="Symbol"
-      >{</a
-      ><a name="407" href="Relation.Nullary.Product.html#407" class="Bound"
-      >p</a
-      ><a name="408"
-      > </a
-      ><a name="409" href="Relation.Nullary.Product.html#409" class="Bound"
-      >q</a
-      ><a name="410" class="Symbol"
-      >}</a
-      ><a name="411"
-      > </a
-      ><a name="412" class="Symbol"
-      >{</a
-      ><a name="413" href="Relation.Nullary.Product.html#413" class="Bound"
-      >P</a
-      ><a name="414"
-      > </a
-      ><a name="415" class="Symbol"
-      >:</a
-      ><a name="416"
-      > </a
-      ><a name="417" class="PrimitiveType"
-      >Set</a
-      ><a name="420"
-      > </a
-      ><a name="421" href="Relation.Nullary.Product.html#407" class="Bound"
-      >p</a
-      ><a name="422" class="Symbol"
-      >}</a
-      ><a name="423"
-      > </a
-      ><a name="424" class="Symbol"
-      >{</a
-      ><a name="425" href="Relation.Nullary.Product.html#425" class="Bound"
-      >Q</a
-      ><a name="426"
-      > </a
-      ><a name="427" class="Symbol"
-      >:</a
-      ><a name="428"
-      > </a
-      ><a name="429" class="PrimitiveType"
-      >Set</a
-      ><a name="432"
-      > </a
-      ><a name="433" href="Relation.Nullary.Product.html#409" class="Bound"
-      >q</a
-      ><a name="434" class="Symbol"
-      >}</a
-      ><a name="435"
-      > </a
-      ><a name="436" class="Symbol"
-      >&#8594;</a
-      ><a name="437"
-      >
-          </a
-      ><a name="448" href="Relation.Nullary.html#484" class="Datatype"
-      >Dec</a
-      ><a name="451"
-      > </a
-      ><a name="452" href="Relation.Nullary.Product.html#413" class="Bound"
-      >P</a
-      ><a name="453"
-      > </a
-      ><a name="454" class="Symbol"
-      >&#8594;</a
-      ><a name="455"
-      > </a
-      ><a name="456" href="Relation.Nullary.html#484" class="Datatype"
-      >Dec</a
-      ><a name="459"
-      > </a
-      ><a name="460" href="Relation.Nullary.Product.html#425" class="Bound"
-      >Q</a
-      ><a name="461"
-      > </a
-      ><a name="462" class="Symbol"
-      >&#8594;</a
-      ><a name="463"
-      > </a
-      ><a name="464" href="Relation.Nullary.html#484" class="Datatype"
-      >Dec</a
-      ><a name="467"
-      > </a
-      ><a name="468" class="Symbol"
-      >(</a
-      ><a name="469" href="Relation.Nullary.Product.html#413" class="Bound"
-      >P</a
-      ><a name="470"
-      > </a
-      ><a name="471" href="Data.Product.html#1073" class="Function Operator"
-      >&#215;</a
-      ><a name="472"
-      > </a
-      ><a name="473" href="Relation.Nullary.Product.html#425" class="Bound"
-      >Q</a
-      ><a name="474" class="Symbol"
-      >)</a
-      ><a name="475"
-      >
-</a
-      ><a name="476" href="Relation.Nullary.html#520" class="InductiveConstructor"
-      >yes</a
-      ><a name="479"
-      > </a
-      ><a name="480" href="Relation.Nullary.Product.html#480" class="Bound"
-      >p</a
-      ><a name="481"
-      > </a
-      ><a name="482" href="Relation.Nullary.Product.html#394" class="Function Operator"
-      >&#215;-dec</a
-      ><a name="487"
-      > </a
-      ><a name="488" href="Relation.Nullary.html#520" class="InductiveConstructor"
-      >yes</a
-      ><a name="491"
-      > </a
-      ><a name="492" href="Relation.Nullary.Product.html#492" class="Bound"
-      >q</a
-      ><a name="493"
-      > </a
-      ><a name="494" class="Symbol"
-      >=</a
-      ><a name="495"
-      > </a
-      ><a name="496" href="Relation.Nullary.html#520" class="InductiveConstructor"
-      >yes</a
-      ><a name="499"
-      > </a
-      ><a name="500" class="Symbol"
-      >(</a
-      ><a name="501" href="Relation.Nullary.Product.html#480" class="Bound"
-      >p</a
-      ><a name="502"
-      > </a
-      ><a name="503" href="Data.Product.html#509" class="InductiveConstructor Operator"
-      >,</a
-      ><a name="504"
-      > </a
-      ><a name="505" href="Relation.Nullary.Product.html#492" class="Bound"
-      >q</a
-      ><a name="506" class="Symbol"
-      >)</a
-      ><a name="507"
-      >
-</a
-      ><a name="508" href="Relation.Nullary.html#547" class="InductiveConstructor"
-      >no</a
-      ><a name="510"
-      > </a
-      ><a name="511" href="Relation.Nullary.Product.html#511" class="Bound"
-      >&#172;p</a
-      ><a name="513"
-      > </a
-      ><a name="514" href="Relation.Nullary.Product.html#394" class="Function Operator"
-      >&#215;-dec</a
-      ><a name="519"
-      > </a
-      ><a name="520" class="Symbol"
-      >_</a
-      ><a name="521"
-      >     </a
-      ><a name="526" class="Symbol"
-      >=</a
-      ><a name="527"
-      > </a
-      ><a name="528" href="Relation.Nullary.html#547" class="InductiveConstructor"
-      >no</a
-      ><a name="530"
-      > </a
-      ><a name="531" class="Symbol"
-      >(</a
-      ><a name="532" href="Relation.Nullary.Product.html#511" class="Bound"
-      >&#172;p</a
-      ><a name="534"
-      > </a
-      ><a name="535" href="Function.html#713" class="Function Operator"
-      >&#8728;</a
-      ><a name="536"
-      > </a
-      ><a name="537" href="Data.Product.html#525" class="Field"
-      >proj&#8321;</a
-      ><a name="542" class="Symbol"
-      >)</a
-      ><a name="543"
-      >
-</a
-      ><a name="544" class="Symbol"
-      >_</a
-      ><a name="545"
-      >     </a
-      ><a name="550" href="Relation.Nullary.Product.html#394" class="Function Operator"
-      >&#215;-dec</a
-      ><a name="555"
-      > </a
-      ><a name="556" href="Relation.Nullary.html#547" class="InductiveConstructor"
-      >no</a
-      ><a name="558"
-      > </a
-      ><a name="559" href="Relation.Nullary.Product.html#559" class="Bound"
-      >&#172;q</a
-      ><a name="561"
-      > </a
-      ><a name="562" class="Symbol"
-      >=</a
-      ><a name="563"
-      > </a
-      ><a name="564" href="Relation.Nullary.html#547" class="InductiveConstructor"
-      >no</a
-      ><a name="566"
-      > </a
-      ><a name="567" class="Symbol"
-      >(</a
-      ><a name="568" href="Relation.Nullary.Product.html#559" class="Bound"
-      >&#172;q</a
-      ><a name="570"
-      > </a
-      ><a name="571" href="Function.html#713" class="Function Operator"
-      >&#8728;</a
-      ><a name="572"
-      > </a
-      ><a name="573" href="Data.Product.html#539" class="Field"
-      >proj&#8322;</a
-      ><a name="578" class="Symbol"
-      >)</a
-      ><a name="579"
-      >
-</a
-      ></pre
-    ></body
-  ></html
->
+<a id="528" class="Comment">------------------------------------------------------------------------</a>
+<a id="601" class="Comment">-- Some properties which are preserved by _×_.</a>
+
+<a id="649" class="Keyword">infixr</a> <a id="656" class="Number">2</a> <a id="658" href="Relation.Nullary.Product.html#680" class="Function Operator">_×-reflects_</a> <a id="671" href="Relation.Nullary.Product.html#921" class="Function Operator">_×-dec_</a>
+
+<a id="_×-reflects_"></a><a id="680" href="Relation.Nullary.Product.html#680" class="Function Operator">_×-reflects_</a> <a id="693" class="Symbol">:</a> <a id="695" class="Symbol">∀</a> <a id="697" class="Symbol">{</a><a id="698" href="Relation.Nullary.Product.html#698" class="Bound">bp</a> <a id="701" href="Relation.Nullary.Product.html#701" class="Bound">bq</a><a id="703" class="Symbol">}</a> <a id="705" class="Symbol">→</a> <a id="707" href="Relation.Nullary.html#854" class="Datatype">Reflects</a> <a id="716" href="Relation.Nullary.Product.html#503" class="Generalizable">P</a> <a id="718" href="Relation.Nullary.Product.html#698" class="Bound">bp</a> <a id="721" class="Symbol">→</a> <a id="723" href="Relation.Nullary.html#854" class="Datatype">Reflects</a> <a id="732" href="Relation.Nullary.Product.html#517" class="Generalizable">Q</a> <a id="734" href="Relation.Nullary.Product.html#701" class="Bound">bq</a> <a id="737" class="Symbol">→</a>
+                           <a id="766" href="Relation.Nullary.html#854" class="Datatype">Reflects</a> <a id="775" class="Symbol">(</a><a id="776" href="Relation.Nullary.Product.html#503" class="Generalizable">P</a> <a id="778" href="Data.Product.html#1167" class="Function Operator">×</a> <a id="780" href="Relation.Nullary.Product.html#517" class="Generalizable">Q</a><a id="781" class="Symbol">)</a> <a id="783" class="Symbol">(</a><a id="784" href="Relation.Nullary.Product.html#698" class="Bound">bp</a> <a id="787" href="Data.Bool.Base.html#986" class="Function Operator">∧</a> <a id="789" href="Relation.Nullary.Product.html#701" class="Bound">bq</a><a id="791" class="Symbol">)</a>
+<a id="793" href="Relation.Nullary.html#902" class="InductiveConstructor">ofʸ</a>  <a id="798" href="Relation.Nullary.Product.html#798" class="Bound">p</a> <a id="800" href="Relation.Nullary.Product.html#680" class="Function Operator">×-reflects</a> <a id="811" href="Relation.Nullary.html#902" class="InductiveConstructor">ofʸ</a>  <a id="816" href="Relation.Nullary.Product.html#816" class="Bound">q</a> <a id="818" class="Symbol">=</a> <a id="820" href="Relation.Nullary.html#902" class="InductiveConstructor">ofʸ</a> <a id="824" class="Symbol">(</a><a id="825" href="Relation.Nullary.Product.html#798" class="Bound">p</a> <a id="827" href="Agda.Builtin.Sigma.html#209" class="InductiveConstructor Operator">,</a> <a id="829" href="Relation.Nullary.Product.html#816" class="Bound">q</a><a id="830" class="Symbol">)</a>
+<a id="832" href="Relation.Nullary.html#902" class="InductiveConstructor">ofʸ</a>  <a id="837" href="Relation.Nullary.Product.html#837" class="Bound">p</a> <a id="839" href="Relation.Nullary.Product.html#680" class="Function Operator">×-reflects</a> <a id="850" href="Relation.Nullary.html#939" class="InductiveConstructor">ofⁿ</a> <a id="854" href="Relation.Nullary.Product.html#854" class="Bound">¬q</a> <a id="857" class="Symbol">=</a> <a id="859" href="Relation.Nullary.html#939" class="InductiveConstructor">ofⁿ</a> <a id="863" class="Symbol">(</a><a id="864" href="Relation.Nullary.Product.html#854" class="Bound">¬q</a> <a id="867" href="Function.Base.html#1031" class="Function Operator">∘</a> <a id="869" href="Data.Product.html#680" class="Field">proj₂</a><a id="874" class="Symbol">)</a>
+<a id="876" href="Relation.Nullary.html#939" class="InductiveConstructor">ofⁿ</a> <a id="880" href="Relation.Nullary.Product.html#880" class="Bound">¬p</a> <a id="883" href="Relation.Nullary.Product.html#680" class="Function Operator">×-reflects</a> <a id="894" class="Symbol">_</a>      <a id="901" class="Symbol">=</a> <a id="903" href="Relation.Nullary.html#939" class="InductiveConstructor">ofⁿ</a> <a id="907" class="Symbol">(</a><a id="908" href="Relation.Nullary.Product.html#880" class="Bound">¬p</a> <a id="911" href="Function.Base.html#1031" class="Function Operator">∘</a> <a id="913" href="Data.Product.html#666" class="Field">proj₁</a><a id="918" class="Symbol">)</a>
+
+<a id="_×-dec_"></a><a id="921" href="Relation.Nullary.Product.html#921" class="Function Operator">_×-dec_</a> <a id="929" class="Symbol">:</a> <a id="931" href="Relation.Nullary.html#1511" class="Record">Dec</a> <a id="935" href="Relation.Nullary.Product.html#503" class="Generalizable">P</a> <a id="937" class="Symbol">→</a> <a id="939" href="Relation.Nullary.html#1511" class="Record">Dec</a> <a id="943" href="Relation.Nullary.Product.html#517" class="Generalizable">Q</a> <a id="945" class="Symbol">→</a> <a id="947" href="Relation.Nullary.html#1511" class="Record">Dec</a> <a id="951" class="Symbol">(</a><a id="952" href="Relation.Nullary.Product.html#503" class="Generalizable">P</a> <a id="954" href="Data.Product.html#1167" class="Function Operator">×</a> <a id="956" href="Relation.Nullary.Product.html#517" class="Generalizable">Q</a><a id="957" class="Symbol">)</a>
+<a id="959" href="Relation.Nullary.html#1581" class="Field">does</a>  <a id="965" class="Symbol">(</a><a id="966" href="Relation.Nullary.Product.html#966" class="Bound">p?</a> <a id="969" href="Relation.Nullary.Product.html#921" class="Function Operator">×-dec</a> <a id="975" href="Relation.Nullary.Product.html#975" class="Bound">q?</a><a id="977" class="Symbol">)</a> <a id="979" class="Symbol">=</a> <a id="981" href="Relation.Nullary.html#1581" class="Field">does</a> <a id="986" href="Relation.Nullary.Product.html#966" class="Bound">p?</a> <a id="989" href="Data.Bool.Base.html#986" class="Function Operator">∧</a> <a id="991" href="Relation.Nullary.html#1581" class="Field">does</a> <a id="996" href="Relation.Nullary.Product.html#975" class="Bound">q?</a>
+<a id="999" href="Relation.Nullary.html#1598" class="Field">proof</a> <a id="1005" class="Symbol">(</a><a id="1006" href="Relation.Nullary.Product.html#1006" class="Bound">p?</a> <a id="1009" href="Relation.Nullary.Product.html#921" class="Function Operator">×-dec</a> <a id="1015" href="Relation.Nullary.Product.html#1015" class="Bound">q?</a><a id="1017" class="Symbol">)</a> <a id="1019" class="Symbol">=</a> <a id="1021" href="Relation.Nullary.html#1598" class="Field">proof</a> <a id="1027" href="Relation.Nullary.Product.html#1006" class="Bound">p?</a> <a id="1030" href="Relation.Nullary.Product.html#680" class="Function Operator">×-reflects</a> <a id="1041" href="Relation.Nullary.html#1598" class="Field">proof</a> <a id="1047" href="Relation.Nullary.Product.html#1015" class="Bound">q?</a>
+</pre></body></html>

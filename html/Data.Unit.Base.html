@@ -1,148 +1,39 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"
-><head
-  ><title
-    >Data.Unit.Base</title
-    ><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"
-     /><meta http-equiv="Content-Style-Type" content="text/css"
-     /><link href="Agda.css" rel="stylesheet" type="text/css"
-     /></head
-  ><body
-  ><pre
-    ><a name="1" class="Comment"
-      >------------------------------------------------------------------------</a
-      ><a name="73"
-      >
-</a
-      ><a name="74" class="Comment"
-      >-- The Agda standard library</a
-      ><a name="102"
-      >
-</a
-      ><a name="103" class="Comment"
-      >--</a
-      ><a name="105"
-      >
-</a
-      ><a name="106" class="Comment"
-      >-- The unit type and the total relation on unit</a
-      ><a name="153"
-      >
-</a
-      ><a name="154" class="Comment"
-      >------------------------------------------------------------------------</a
-      ><a name="226"
-      >
-</a
-      ><a name="227" class="Keyword"
-      >module</a
-      ><a name="233"
-      > </a
-      ><a name="234" href="Data.Unit.Base.html#1" class="Module"
-      >Data.Unit.Base</a
-      ><a name="248"
-      > </a
-      ><a name="249" class="Keyword"
-      >where</a
-      ><a name="254"
-      >
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Data.Unit.Base</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Comment">------------------------------------------------------------------------</a>
+<a id="74" class="Comment">-- The Agda standard library</a>
+<a id="103" class="Comment">--</a>
+<a id="106" class="Comment">-- The unit type and the total relation on unit</a>
+<a id="154" class="Comment">------------------------------------------------------------------------</a>
 
-</a
-      ><a name="256" class="Comment"
-      >------------------------------------------------------------------------</a
-      ><a name="328"
-      >
-</a
-      ><a name="329" class="Comment"
-      >-- A unit type defined as a record type</a
-      ><a name="368"
-      >
+<a id="228" class="Symbol">{-#</a> <a id="232" class="Keyword">OPTIONS</a> <a id="240" class="Pragma">--without-K</a> <a id="252" class="Pragma">--safe</a> <a id="259" class="Symbol">#-}</a>
 
-</a
-      ><a name="370" class="Comment"
-      >-- Note that the name of this type is &quot;\top&quot;, not T.</a
-      ><a name="422"
-      >
+<a id="264" class="Keyword">open</a> <a id="269" class="Keyword">import</a> <a id="276" href="Agda.Builtin.Equality.html" class="Module">Agda.Builtin.Equality</a> <a id="298" class="Keyword">using</a> <a id="304" class="Symbol">(</a><a id="305" href="Agda.Builtin.Equality.html#125" class="Datatype Operator">_≡_</a><a id="308" class="Symbol">)</a>
 
-</a
-      ><a name="424" class="Keyword"
-      >open</a
-      ><a name="428"
-      > </a
-      ><a name="429" class="Keyword"
-      >import</a
-      ><a name="435"
-      > </a
-      ><a name="436" href="Agda.Builtin.Unit.html#1" class="Module"
-      >Agda.Builtin.Unit</a
-      ><a name="453"
-      > </a
-      ><a name="454" class="Keyword"
-      >public</a
-      ><a name="460"
-      > </a
-      ><a name="461" class="Keyword"
-      >using</a
-      ><a name="466"
-      > </a
-      ><a name="467" class="Symbol"
-      >(</a
-      ><a name="468" href="Agda.Builtin.Unit.html#69" class="Record"
-      >&#8868;</a
-      ><a name="469" class="Symbol"
-      >;</a
-      ><a name="470"
-      > </a
-      ><a name="471" href="Agda.Builtin.Unit.html#106" class="InductiveConstructor"
-      >tt</a
-      ><a name="473" class="Symbol"
-      >)</a
-      ><a name="474"
-      >
+<a id="311" class="Keyword">module</a> <a id="318" href="Data.Unit.Base.html" class="Module">Data.Unit.Base</a> <a id="333" class="Keyword">where</a>
 
-</a
-      ><a name="476" class="Keyword"
-      >record</a
-      ><a name="482"
-      > </a
-      ><a name="483" href="Data.Unit.Base.html#483" class="Record Operator"
-      >_&#8804;_</a
-      ><a name="486"
-      > </a
-      ><a name="487" class="Symbol"
-      >(</a
-      ><a name="488" href="Data.Unit.Base.html#488" class="Bound"
-      >x</a
-      ><a name="489"
-      > </a
-      ><a name="490" href="Data.Unit.Base.html#490" class="Bound"
-      >y</a
-      ><a name="491"
-      > </a
-      ><a name="492" class="Symbol"
-      >:</a
-      ><a name="493"
-      > </a
-      ><a name="494" href="Agda.Builtin.Unit.html#69" class="Record"
-      >&#8868;</a
-      ><a name="495" class="Symbol"
-      >)</a
-      ><a name="496"
-      > </a
-      ><a name="497" class="Symbol"
-      >:</a
-      ><a name="498"
-      > </a
-      ><a name="499" class="PrimitiveType"
-      >Set</a
-      ><a name="502"
-      > </a
-      ><a name="503" class="Keyword"
-      >where</a
-      ><a name="508"
-      >
-</a
-      ></pre
-    ></body
-  ></html
->
+<a id="340" class="Comment">------------------------------------------------------------------------</a>
+<a id="413" class="Comment">-- A unit type defined as a record type</a>
+
+<a id="454" class="Comment">-- Note that by default the unit type is not universe polymorphic as it</a>
+<a id="526" class="Comment">-- often results in unsolved metas. See `Data.Unit.Polymorphic` for a</a>
+<a id="596" class="Comment">-- universe polymorphic variant.</a>
+
+<a id="630" class="Comment">-- Note also that the name of this type is &quot;\top&quot;, not T.</a>
+
+<a id="689" class="Keyword">open</a> <a id="694" class="Keyword">import</a> <a id="701" href="Agda.Builtin.Unit.html" class="Module">Agda.Builtin.Unit</a> <a id="719" class="Keyword">public</a>
+  <a id="728" class="Keyword">using</a> <a id="734" class="Symbol">(</a><a id="735" href="Agda.Builtin.Unit.html#137" class="Record">⊤</a><a id="736" class="Symbol">;</a> <a id="738" href="Agda.Builtin.Unit.html#174" class="InductiveConstructor">tt</a><a id="740" class="Symbol">)</a>
+
+<a id="743" class="Comment">------------------------------------------------------------------------</a>
+<a id="816" class="Comment">-- DEPRECATED NAMES</a>
+<a id="836" class="Comment">------------------------------------------------------------------------</a>
+<a id="909" class="Comment">-- Please use the new names as continuing support for the old names is</a>
+<a id="980" class="Comment">-- not guaranteed.</a>
+
+<a id="1000" class="Comment">-- Version 1.2</a>
+
+<a id="1016" class="Keyword">record</a> <a id="_≤_"></a><a id="1023" href="Data.Unit.Base.html#1023" class="Record Operator">_≤_</a> <a id="1027" class="Symbol">(</a><a id="1028" href="Data.Unit.Base.html#1028" class="Bound">x</a> <a id="1030" href="Data.Unit.Base.html#1030" class="Bound">y</a> <a id="1032" class="Symbol">:</a> <a id="1034" href="Agda.Builtin.Unit.html#137" class="Record">⊤</a><a id="1035" class="Symbol">)</a> <a id="1037" class="Symbol">:</a> <a id="1039" class="PrimitiveType">Set</a> <a id="1043" class="Keyword">where</a>
+<a id="1049" class="Symbol">{-#</a> <a id="1053" class="Keyword">WARNING_ON_USAGE</a> <a id="1070" class="Pragma">_≤_</a>
+<a id="1074" class="String">&quot;Warning: _≤_ was deprecated in v1.2.
+Please use _≡_ from Relation.Binary.PropositionalEquality instead.&quot;</a>
+<a id="1180" class="Symbol">#-}</a>
+</pre></body></html>
