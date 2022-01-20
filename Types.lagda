@@ -20,7 +20,7 @@ open import Relation Λ hiding (_++_) renaming (_⊆_ to _⊆R_)
 
 open import Data.List.Membership.Propositional renaming (_∈_ to _∈l_;_∉_ to _∉l_)
 open import Data.Bool hiding (_∨_;_≟_)
-open import Data.Product renaming (Σ to Σₓ;map to mapₓ;_,_ to _∶_) public
+open import Data.Product renaming (Σ to Σₓ;map to mapₓ;_,_ to _∶_)
 open import Data.Sum renaming (_⊎_ to _∨_;map to map+)
 open import Data.Empty
 open import Function hiding (_⟶_)

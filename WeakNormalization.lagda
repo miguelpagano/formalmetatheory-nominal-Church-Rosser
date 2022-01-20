@@ -6,26 +6,29 @@ module WeakNormalization (Atom : Set) (_≟ₐ_ : Decidable {A = Atom} _≡_) wh
 
 open import AtomAbs Atom _≟ₐ_
 open import Term Atom _≟ₐ_ hiding (fv)
+open import Beta Atom _≟ₐ_ hiding (step-≡)
 open import Alpha Atom _≟ₐ_ hiding (step-≡)
 open import TermAcc Atom _≟ₐ_
 open import ListProperties
+open import Permutation Atom _≟ₐ_
+open import Equivariant Atom _≟ₐ_
 open import TermInduction Atom _≟ₐ_
 open import TermRecursion Atom _≟ₐ_
 open import Substitution Atom _≟ₐ_
 open import FreeVariables Atom _≟ₐ_
 open import Parallel Atom _≟ₐ_
 open import Relation Λ hiding (_++_) renaming (_⊆_ to _⊆R_)
+open import Types Atom _≟ₐ_
 
 open import Data.Empty
-open import Data.Bool hiding (_∨_;_≟_)
+open import Data.Bool hiding (_∨_;_≟_;_≤_;_<_)
 open import Data.Sum renaming (_⊎_ to _∨_;map to map+)
-open import Data.Product renaming (Σ to Σₓ;map to mapₓ;_,_ to _∶_) public
-open import Function hiding (_⟨_⟩_)
+open import Data.Product renaming (Σ to Σₓ;map to mapₓ;_,_ to _∶_)
+open import Function hiding (_⟨_⟩_;_⟶_)
 open import Data.List.Relation.Unary.Any as Any hiding (map)
 open import Data.List.Relation.Unary.Any.Properties
-open import Data.List.Membership.Propositional
+open import Data.List.Membership.Propositional renaming (_∈_ to _∈l_;_∉_ to _∉l_)
 open import Data.List.Membership.Propositional.Properties
-open import Data.Product
 open import Relation.Binary.PropositionalEquality as PropEq hiding ([_];trans)
 
 open import Relation.Nullary
@@ -56,14 +59,14 @@ _≤_ : Type → Type → Set
 Acc< : Type → Set
 Acc< = Acc _<_
 
-wf<' : Well-founded _<'_
-wf<' τ = acc λ y ()
+wf<' : WellFounded _<'_
+wf<' ιt = acc λ y ()
 wf<' (α ⟶ β) = acc accind
   where accind : (γ : Type) → γ <' (α ⟶ β) → Acc _<'_ γ
         accind .α <l = wf<' α
         accind .β <r = wf<' β
 
-wf< : Well-founded _<_
+wf< : WellFounded _<_
 wf< = well-founded wf<'
 
 γ⟶α≤β→γ<β : ∀ {γ α β} → (γ ⟶ α) ≤ β → γ < β
@@ -78,11 +81,11 @@ wf< = well-founded wf<'
 Weak Normalization
 
 \begin{code}
-data Ne : V → Λ → Set
+data Ne : Atom → Λ → Set
 data Nf : Λ → Set
 
 data Ne where
-  v   : (x : V) → Ne x (v x)
+  v   : (x : Atom) → Ne x (v x)
   _·_ : ∀ {x r s} → Ne x r → Nf s → Ne x (r · s)
 
 data Nf where
@@ -104,7 +107,7 @@ NfEquiv {ƛ x M} π (ƛ NfM)
   with π ∙ (ƛ x M) | lemmaπƛ {x} {M} {π}
 ... | .(ƛ (π ∙ₐ x) (π ∙ M)) | refl = ƛ (NfEquiv π NfM)
 
-NeαComp : {x : V} → αCompatiblePred (Ne x)
+NeαComp : {x : Atom} → αCompatiblePred (Ne x)
 NfαComp : αCompatiblePred Nf
 
 NeαComp {.x} ∼αv            (v x)       = v x
@@ -140,15 +143,15 @@ M ↓ = ∃ (λ N → M ↓ N)
 ·l↓ : {M M' N : Λ} → M ∼α M'  → M · N ↓ →  M' · N ↓
 ·l↓ M~M' (P ∶ MN→P ∶ nfP) = P ∶ trans (app-star-l (just (inj₂ (σ M~M')))) MN→P ∶ nfP
 
-data WNe : V → Λ → Set where
-  wv : (x : V) → WNe x (v x)
-  w· : {M N : Λ}{x : V} → WNe x M → WNe x (M · N)
+data WNe : Atom → Λ → Set where
+  wv : (x : Atom) → WNe x (v x)
+  w· : {M N : Λ}{x : Atom} → WNe x M → WNe x (M · N)
 
-WNe⊂Ne : {x : V}{M : Λ} → Ne x M → WNe x M
+WNe⊂Ne : {x : Atom}{M : Λ} → Ne x M → WNe x M
 WNe⊂Ne (v x)       = wv x
 WNe⊂Ne (WNexM · _) = w· (WNe⊂Ne WNexM)
 
-Nf∧Wne⊂Ne : {x : V}{M : Λ} → Nf M → WNe x M → Ne x M
+Nf∧Wne⊂Ne : {x : Atom}{M : Λ} → Nf M → WNe x M → Ne x M
 Nf∧Wne⊂Ne (ne (v .x))       (wv x)     = v x
 Nf∧Wne⊂Ne (ne (NexM · nfN)) (w· WNexM) = Nf∧Wne⊂Ne (ne NexM) WNexM · nfN
 Nf∧Wne⊂Ne (ƛ nf)            ()
@@ -158,7 +161,7 @@ Nf∧Wne⊂Ne (ƛ nf)            ()
 lemmaM⟶N∧N↓⟶M↓ : {M N : Λ} → M →α* N → N ↓ → M ↓
 lemmaM⟶N∧N↓⟶M↓ M⟶N (P ∶ N⟶P ∶ nfP) = P ∶ trans M⟶N N⟶P ∶ nfP
 
-lemmav↓ : {x : V}{N : Λ} → (v x) →α* N → N ≡ v x
+lemmav↓ : {x : Atom}{N : Λ} → (v x) →α* N → N ≡ v x
 lemmav↓ refl = refl
 lemmav↓ (just (inj₁ (ctxinj ())))
 lemmav↓ (just (inj₂ ∼αv)) = refl
@@ -166,11 +169,11 @@ lemmav↓ {x} {N} (trans {b = P} x→P P→N)
   with P | lemmav↓ x→P
 ... | .(v x) | refl = lemmav↓ P→N
 
-lemmaWNeƛ : {x : V}{M : Λ} → WNe x M → ¬ ∃₂ (λ y N → M ≡ ƛ y N)
+lemmaWNeƛ : {x : Atom}{M : Λ} → WNe x M → ¬ ∃₂ (λ y N → M ≡ ƛ y N)
 lemmaWNeƛ (wv x) (_ ∶ _ ∶ ())
 lemmaWNeƛ (w· w) (_ ∶ _ ∶ ())
 
-lemma1 : {x : V}{M N : Λ} → WNe x M → M →α* N → WNe x N
+lemma1 : {x : Atom}{M N : Λ} → WNe x M → M →α* N → WNe x N
 lemma1 {.x} {.(v x)} {N} (wv x) x→N
   with N | lemmav↓ x→N
 ... | .(v x) | refl = wv x
@@ -183,12 +186,12 @@ lemma1 {x} {M · P}        .{M · P'}  (w· WNexM) (just (inj₁ (ctx·r {t₂' 
 lemma1 {x} {M · P}        .{M' · N'} (w· WNexM) (just (inj₂ (∼α· {M' = M'} {N' = N'} M~M' N~N'))) = w· (lemma1 {x} {M} {M'} WNexM (just (inj₂ M~M')))
 lemma1 {x} {M · P}        {N}        (w· WNexM) (trans {b = Q} MP→Q Q→N) = lemma1 {x} (lemma1 {x} {M · P}  (w· WNexM) MP→Q) Q→N
 
-corollary1 : {x : V}{M N : Λ} → WNe x M → M ↓ N → WNe x N
+corollary1 : {x : Atom}{M N : Λ} → WNe x M → M ↓ N → WNe x N
 corollary1 WNexM (M→N ∶ _) = lemma1 WNexM M→N
 \end{code}
 
 \begin{code}
-lemma2 : {x : V}{α β : Type}{M N : Λ}{Γ : Cxt}
+lemma2 : {x : Atom}{α β : Type}{M N : Λ}{Γ : Cxt}
    → WNe x M → Γ ⊢ M ∶ α ⟶ β → Γ ⊢ N ∶ α
   → Σₓ (x ∈ Γ) (λ x∈Γ → α ⟶ β ≤ Γ ⟨ x∈Γ ⟩ × (α < Γ ⟨ x∈Γ ⟩))
 lemma2 .{x} {α} {β} .{v x} {N} (wv x) Γ⊢x:α→β  Γ⊢N:α =
@@ -204,7 +207,7 @@ lemma2 {x} {α} {β} {M · P} {N} (w· NexM) (⊢· {γ} Γ⊢M∶γ⟶α⟶β �
 \end{code}
 
 \begin{code}
-lemma3 : {x y : V}{M N : Λ} → x ≢ y → WNe y M → WNe y (M [ x ≔ N ])
+lemma3 : {x y : Atom}{M N : Λ} → x ≢ y → WNe y M → WNe y (M [ x ≔ N ])
 lemma3 {x} .{y} .{v y} {N} x≢y (wv y)
   with v y [ x ≔ N ] | lemmahvar≢ {x} {y} {N} x≢y
 ... | .(v y) | refl = wv y
@@ -252,15 +255,15 @@ thm-proof : {β : Type}{N : Λ}{M : Λ} → Acc< β → thm {β} {N} M
 thm-proof {β} {N} {M} (acc accβ) =
   TermαPrimInd (thm {β} {N}) (thm-αComp {β} {N}) thm-var thm-app (fv N ∶ thm-abs) M
   where
-  lemma1-var : (y : V) → thm-lemma1 {β} {N} (v y)
+  lemma1-var : (y : Atom) → thm-lemma1 {β} {N} (v y)
   lemma1-var y {x} _ _ _ N↓ with (v y) [ x ≔ N ] | lemmahvar {x} {y} {N}
   ... | .N     | inj₁ (x≡y ∶ refl) = N↓
   ... | .(v y) | inj₂ (x≢y ∶ refl) = v y ∶ refl ∶ ne (v y)
 
-  lemma2-var : (y : V) → thm-lemma2 {β} {N} (v y)
+  lemma2-var : (y : Atom) → thm-lemma2 {β} {N} (v y)
   lemma2-var y Γ⊢y:β→α Γ⊢N:β _ (P ∶ N→P ∶ nfP) = v y · P ∶ app-star-r N→P ∶ ne (v y · nfP)
 
-  thm-var : (y : V) → thm {β} {N} (v y)
+  thm-var : (y : Atom) → thm {β} {N} (v y)
   thm-var y = lemma1-var y ∶ lemma2-var y
 
   lemma1-app : (M Q : Λ) → thm {β} {N} M → thm {β} {N} Q
@@ -313,7 +316,7 @@ thm-proof {β} {N} {M} (acc accβ) =
           → thm {β} {N} (M · Q)
   thm-app M Q thmM thmQ = lemma1-app M Q thmM thmQ ∶ lemma2-app M Q thmM thmQ
 
-  lemma1-abs : (M : Λ)(y : V)
+  lemma1-abs : (M : Λ)(y : Atom)
     → (y ∉l  fv N)
     → thm {β} {N} M
     → thm-lemma1 {β} {N} (ƛ y M)
@@ -335,9 +338,9 @@ thm-proof {β} {N} {M} (acc accβ) =
     hiM : M [ x ≔ N ] ↓
     hiM = (proj₁ thmM) Γ,y:γ‚x∶β⊢M:α Γ,y:γ⊢N∶β NfM N↓
     （ƛyM）[x≔N]~ƛy（M[x≔N]） : (ƛ y M) [ x ≔ N ] ∼α ƛ y (M [ x ≔ N ])
-    （ƛyM）[x≔N]~ƛy（M[x≔N]） = lemmaƛ∼[] M (x≢y∧y∉xs→x∉x∷xs x≢y y∉fvN ) -- y∉x∷fvN
+    （ƛyM）[x≔N]~ƛy（M[x≔N]） = lemmaƛ∼[] M (∉-∷⁺ (sym≢ x≢y) y∉fvN ) -- y∉x∷fvN
 
-  lemma2-abs :(M : Λ)(y : V)
+  lemma2-abs :(M : Λ)(y : Atom)
     → (y ∉l  fv N)
     → thm {β} {N} M
     → thm-lemma2 {β} {N} (ƛ y M)
@@ -350,7 +353,7 @@ thm-proof {β} {N} {M} (acc accβ) =
     hiM : M [ y ≔ N ] ↓
     hiM = (proj₁ thmM) Γ,y:β⊢M∶α Γ⊢N∶β NfM N↓
 
-  thm-abs : (M : Λ)(y : V)
+  thm-abs : (M : Λ)(y : Atom)
     → (y ∉l  fv N)
     → thm {β} {N} M
     → thm {β} {N} (ƛ y M)
