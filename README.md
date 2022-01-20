@@ -22,15 +22,11 @@ The principal results are in the following links:
 
 # Authors
 
-* Ernesto Copello 
-* Nora Szasz      
-* Álvaro Tasistro 
+* Ernesto Copello
+* Nora Szasz
+* Álvaro Tasistro
 
-# Build Status in Travis CI : [![Build Status](https://travis-ci.org/ernius/formalmetatheory-nominal-Church-Rosser.svg?branch=master)](https://travis-ci.org/ernius/formalmetatheory-nominal-Church-Rosser)
+# Build Status in Travis CI : not yet :(
+<!-- # Build Status in Travis CI : [![Build Status](https://travis-ci.org/ernius/formalmetatheory-nominal-Church-Rosser.svg?branch=master)](https://travis-ci.org/ernius/formalmetatheory-nominal-Church-Rosser) -->
 
-Agda compiler version 2.5.2 and standard library version 0.13
-
-
-
-
-
+Agda compiler version 2.6.1 and standard library version 1.6
