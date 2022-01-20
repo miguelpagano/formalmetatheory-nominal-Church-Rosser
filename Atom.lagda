@@ -1,5 +1,8 @@
 \begin{code}
-module AtomAbs (Atom : Set) (_≟ₐ_ : Decidable {A = Atom} _≡_) where
+open import Relation.Binary.Definitions
+open import Relation.Binary.PropositionalEquality
+
+module Atom (Atom : Set) (_≟ₐ_ : Decidable {A = Atom} _≡_) where
 
 open import Data.Nat
 open import Data.Product renaming (_×_ to _∧_)

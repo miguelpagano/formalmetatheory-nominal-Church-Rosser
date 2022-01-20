@@ -5,7 +5,7 @@ open import Relation.Binary.PropositionalEquality hiding ([_])
 module Term (Atom : Set) (_≟ₐ_ : Decidable {A = Atom} _≡_) where
 open import Data.Nat as Nat hiding (_⊔_;_*_)
 
-open import AtomAbs Atom _≟ₐ_
+open import Atom Atom _≟ₐ_
 open import ListProperties
 open import NaturalProperties
 

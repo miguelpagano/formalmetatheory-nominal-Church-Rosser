@@ -4,7 +4,7 @@ open import Relation.Binary.PropositionalEquality using (_≡_)
 
 module NoCapture (Atom : Set) (_≟ₐ_ : Decidable {A = Atom} _≡_) where
 
-open import AtomAbs Atom _≟ₐ_
+open import Atom Atom _≟ₐ_
 open import Equivariant Atom _≟ₐ_
 open import Term Atom _≟ₐ_ hiding (fv)
 open import Alpha Atom _≟ₐ_ hiding (step-≡)

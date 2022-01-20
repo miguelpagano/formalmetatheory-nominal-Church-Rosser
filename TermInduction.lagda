@@ -6,7 +6,7 @@ open import Relation.Binary.PropositionalEquality hiding ([_])
 module TermInduction (Atom : Set) (_≟ₐ_ : Decidable {A = Atom} _≡_) where
 
 open import Term Atom _≟ₐ_
-open import AtomAbs Atom _≟ₐ_
+open import Atom Atom _≟ₐ_
 open import Alpha  Atom _≟ₐ_
 open import ListProperties
 open import TermAcc  Atom _≟ₐ_

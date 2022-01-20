@@ -3,7 +3,7 @@ open import Relation.Binary.Definitions
 open import Relation.Binary.PropositionalEquality hiding ([_])
 
 module Permutation (Atom : Set) (_≟ₐ_ : Decidable {A = Atom} _≡_) where
-open import AtomAbs Atom _≟ₐ_
+open import Atom Atom _≟ₐ_
 open import Term Atom _≟ₐ_
 
 open import Level

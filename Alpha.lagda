@@ -5,7 +5,7 @@ open import Relation.Binary.PropositionalEquality hiding ([_])
 module Alpha (Atom : Set) (_≟ₐ_ : Decidable {A = Atom} _≡_) where
 
 open import Term Atom _≟ₐ_
-open import AtomAbs  Atom _≟ₐ_
+open import Atom Atom _≟ₐ_
 open import Equivariant Atom _≟ₐ_
 open import Permutation Atom _≟ₐ_
 open import ListProperties

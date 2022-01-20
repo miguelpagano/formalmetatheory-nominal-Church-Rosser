@@ -3,7 +3,7 @@ open import Relation.Binary.Definitions
 open import Relation.Binary.PropositionalEquality hiding ([_])
 
 module Equivariant (Atom : Set) (_≟ₐ_ : Decidable {A = Atom} _≡_) where
-open import AtomAbs Atom _≟ₐ_
+open import Atom Atom _≟ₐ_
 open import Term Atom _≟ₐ_
 open import Permutation Atom _≟ₐ_
 

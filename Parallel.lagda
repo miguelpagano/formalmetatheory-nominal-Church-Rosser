@@ -1,12 +1,10 @@
-FIXME: diam⇉ is assumed to be terminating but agda doesn't believe that.
-
 \begin{code}
 open import Relation.Binary.Definitions using (Decidable)
 open import Relation.Binary.PropositionalEquality using (_≡_)
 
 module Parallel (Atom : Set) (_≟ₐ_ : Decidable {A = Atom} _≡_) where
 
-open import AtomAbs Atom _≟ₐ_
+open import Atom Atom _≟ₐ_
 open import Equivariant Atom _≟ₐ_
 open import Term Atom _≟ₐ_ hiding (fv)
 open import Alpha Atom _≟ₐ_ hiding (step-≡)
@@ -325,115 +323,4 @@ lemma⇉Subst {N} {N'} x M
     b∉x∷fvN = ∉-∷⁺ (∉-∷⁼ (here refl) b∉x∷fvN++fvN') (∉-++⁻ˡ (fv N) (∉-++⁻ʳ [ x ] b∉x∷fvN++fvN'))
     b∉x∷fvN' : b ∉ x ∷ fv N'
     b∉x∷fvN' = ∉-∷⁺ (∉-∷⁼ (here refl) b∉x∷fvN++fvN') (∉-++⁻ʳ (fv N) (∉-++⁻ʳ [ x ] b∉x∷fvN++fvN'))
-\end{code}
-
-\begin{code}
-{-# TERMINATING #-}
-diam⇉ :  {M N P : Λ} → M ⇉ N → M ⇉ P
-         → ∃ (λ Q → N ⇉ Q × P ⇉ Q)
-diam⇉  (⇉v x) (⇉v .x)
-  = v x , ⇉v x , ⇉v x
-diam⇉  {M · M'} {N · N'} {P · P'}
-       (⇉· M⇉N M'⇉N') (⇉· M⇉P M'⇉P')
-  = Q · R , ⇉· N⇉Q  N'⇉R , ⇉· P⇉Q P'⇉R
-    where
-  hi1 : ∃ (λ Q → N ⇉ Q × P ⇉ Q)
-  hi1 = diam⇉ M⇉N M⇉P
-  Q : Λ
-  Q = proj₁ hi1
-  N⇉Q : N ⇉ Q
-  N⇉Q = proj₁ (proj₂ hi1)
-  P⇉Q : P ⇉ Q
-  P⇉Q = proj₂ (proj₂ hi1)
-  hi2 : ∃ (λ R → N' ⇉ R × P' ⇉ R)
-  hi2 = diam⇉ M'⇉N' M'⇉P'
-  R : Λ
-  R = proj₁ hi2
-  N'⇉R : N' ⇉ R
-  N'⇉R = proj₁ (proj₂ hi2)
-  P'⇉R : P' ⇉ R
-  P'⇉R = proj₂ (proj₂ hi2)
-diam⇉  {ƛ x M} {ƛ y N} {ƛ z P}
-       (⇉ƛ xs fxs) (⇉ƛ ys fys)
-  with  lemma⇉ƛrule (⇉ƛ xs fxs)
-     |  lemma⇉ƛrule (⇉ƛ ys fys)
-...  |  N' , M⇉N' , _ , ƛyN~ƛxN'
-     |  P' , M⇉P' , _ , ƛzP~ƛxP'
-  with  diam⇉ M⇉N' M⇉P'
-...  |  Q , N'⇉Q , P'⇉Q
-  = ƛ x Q , lemma⇉αleft ƛyN~ƛxN' (lemma⇉ƛpres N'⇉Q) , lemma⇉αleft ƛzP~ƛxP' (lemma⇉ƛpres P'⇉Q)
-diam⇉  {ƛ x M · N} {P} {Q}
-       (⇉β .{M} {P'} .{N} {P''} .x y (⇉ƛ xs fxs) N⇉P'' P'[y≔P'']∼P)
-       (⇉β .{M} {Q'} .{N} {Q''} .x z (⇉ƛ ys fys) N⇉Q'' Q'[z≔Q'']∼Q)
-  with  lemma⇉βrule x y (⇉ƛ xs fxs) N⇉P'' P'[y≔P'']∼P
-     |  lemma⇉βrule x z (⇉ƛ ys fys) N⇉Q'' Q'[z≔Q'']∼Q
-...  |  P‴ , ƛxM⇉ƛxP‴ , M‴[x≔P'']~P
-     |  Q‴ , ƛxM⇉ƛxQ‴ , Q‴[x≔P'']~Q
-  with  diam⇉ ƛxM⇉ƛxP‴ ƛxM⇉ƛxQ‴
-     |  diam⇉  N⇉P'' N⇉Q''
-...  |  R , ƛxP‴⇉R , ƛxQ‴⇉R
-     |  S , P''⇉S  , Q''⇉S
-  with  lemma⇉ƛrule ƛxP‴⇉R
-     |  lemma⇉ƛrule ƛxQ‴⇉R
-...  |  R' , P‴⇉R' , ƛxP‴⇉ƛxR' , R~ƛxR'
-     |  R″ , Q‴⇉R″ , ƛxQ‴⇉ƛxR″ , R~ƛxR″
-  with  lemma∼αƛ← (τ (σ R~ƛxR') R~ƛxR″)
-...  |  R'∼R″
-  =  R' [ x ≔ S ]                                                 ,
-     lemma⇉αleft (σ M‴[x≔P'']~P) (lemma⇉Subst x P‴ P‴⇉R' P''⇉S )  ,
-     lemma⇉αleft (σ Q‴[x≔P'']~Q) (lemma⇉Subst x Q‴ (lemma⇉αright Q‴⇉R″ (σ R'∼R″)) Q''⇉S )
-diam⇉  {ƛ x M · N} {P} {ƛ z Q' · Q''}
-       (⇉β .{M} {P'} .{N} {P''} .{P} .x y ƛxM⇉λyP' N⇉P'' P'[y≔P'']∼P)
-       (⇉· ƛxM⇉λzQ' N⇉Q'')
-  with  lemma⇉βrule x y ƛxM⇉λyP' N⇉P'' P'[y≔P'']∼P
-     |  lemma⇉ƛrule ƛxM⇉λzQ'
-...  |  P‴ , ƛxM⇉ƛxP‴ , P‴[x≔P'']~P
-     |  Q‴ , M⇉Q‴ , ƛxM⇉ƛxQ‴ , ƛzQ'~ƛxQ‴
-  with  diam⇉ ƛxM⇉ƛxP‴ ƛxM⇉ƛxQ‴
-     |  diam⇉ N⇉P'' N⇉Q''
-...  |  Q , ƛxP‴⇉Q , ƛxQ‴⇉Q
-     |  R , P''⇉R  , Q''⇉R
-  with  lemma⇉ƛrule ƛxP‴⇉Q
-     |  lemma⇉ƛrule ƛxQ‴⇉Q
-...  |  S' , P‴⇉S' , ƛxP‴⇉ƛxS' , Q~ƛxS'
-     |  S″ , Q‴⇉S″ , ƛxQ‴⇉ƛxS″ , Q~ƛxS″
-  with  lemma∼αƛ← (τ (σ Q~ƛxS') Q~ƛxS″)
-...  |  S'∼S″
-  =  S' [ x ≔ R ]                                                  ,
-     lemma⇉αleft  (σ P‴[x≔P'']~P) (lemma⇉Subst x P‴ P‴⇉S' P''⇉R)   ,
-     lemma⇉αleft  (∼α· ƛzQ'~ƛxQ‴ ρ)
-                  (⇉β x x (lemma⇉αright ƛxQ‴⇉ƛxS″ (lemma∼αƛ (σ S'∼S″))) Q''⇉R ρ)
-diam⇉  {ƛ x M · N} {ƛ z Q' · Q''} {P}
-       (⇉· ƛxM⇉λzQ' N⇉Q'')
-       (⇉β .{M} {P'} .{N} {P''} .{P} .x y ƛxM⇉λyP' N⇉P'' P'[y≔P'']∼P)
-  with  lemma⇉βrule x y ƛxM⇉λyP' N⇉P'' P'[y≔P'']∼P
-     |  lemma⇉ƛrule ƛxM⇉λzQ'
-...  |  P‴ , ƛxM⇉ƛxP‴ , P‴[x≔P'']~P
-     |  Q‴ , M⇉Q‴ , ƛxM⇉ƛxQ‴ , ƛzQ'~ƛxQ‴
-  with  diam⇉ ƛxM⇉ƛxP‴ ƛxM⇉ƛxQ‴
-     |  diam⇉ N⇉P'' N⇉Q''
-...  |  Q , ƛxP‴⇉Q , ƛxQ‴⇉Q
-     |  R , P''⇉R  , Q''⇉R
-  with  lemma⇉ƛrule ƛxP‴⇉Q
-     |  lemma⇉ƛrule ƛxQ‴⇉Q
-...  |  S' , P‴⇉S' , ƛxP‴⇉ƛxS' , Q~ƛxS'
-     |  S″ , Q‴⇉S″ , ƛxQ‴⇉ƛxS″ , Q~ƛxS″
-  with  lemma∼αƛ← (τ (σ Q~ƛxS') Q~ƛxS″)
-...  |  S'∼S″
-  =  S' [ x ≔ R ]                                                                 ,
-     lemma⇉αleft  (∼α· ƛzQ'~ƛxQ‴ ρ)
-                  (⇉β x x (lemma⇉αright ƛxQ‴⇉ƛxS″ (lemma∼αƛ (σ S'∼S″))) Q''⇉R ρ)  ,
-     lemma⇉αleft  (σ P‴[x≔P'']~P) (lemma⇉Subst x P‴ P‴⇉S' P''⇉R)
-diam⇉  {ƛ x M · N} {P} {v _ · Q''}
-       (⇉β .{M} {P'} .{N} {P''} .{P} .x y ƛxM⇉λyP' N⇉P'' P'[y≔P'']∼P)
-       (⇉· () N⇉Q'')
-diam⇉  {ƛ x M · N} {P} {(_ · _) · Q''}
-       (⇉β .{M} {P'} .{N} {P''} .{P} .x y ƛxM⇉λyP' N⇉P'' P'[y≔P'']∼P)
-       (⇉· () N⇉Q'')
-diam⇉  {ƛ x M · N} {v _ · Q''} {P}
-       (⇉· () N⇉Q'')
-       (⇉β .{M} {P'} .{N} {P''} .{P} .x y ƛxM⇉λyP' N⇉P'' P'[y≔P'']∼P)
-diam⇉  {ƛ x M · N} {(_ · _) · Q''} {P}
-       (⇉· () N⇉Q'')
-       (⇉β .{M} {P'} .{N} {P''} .{P} .x y ƛxM⇉λyP' N⇉P'' P'[y≔P'']∼P)
 \end{code}
