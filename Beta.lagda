@@ -41,7 +41,7 @@ Beta contraction
 %<*betacontraction>
 \begin{code}
 data _▹_ : Λ → Λ → Set where
-  ▹β  :  {M N : Λ}{x : Atom} 
+  ▹β  :  {M N : Λ}{x : Atom}
       →  ƛ x M · N ▹ M [ x ≔ N ]
 \end{code}
 %</betacontraction>
@@ -69,7 +69,7 @@ _→β_ = ctx _▹_
 
 %<*alphabeta>
 \begin{code}
-infix 4 _→α_ 
+infix 4 _→α_
 _→α_ : Rel
 _→α_ = _→β_ ∪ _∼α_
 \end{code}
@@ -86,11 +86,11 @@ _→α*_ = star _→α_
 \begin{code}
 abs-step : ∀ {x t t'} → t →α t' → ƛ x t →α ƛ x t'
 abs-step (inj₁ M→βN) = inj₁ (ctxƛ M→βN)
-abs-step (inj₂ M∼N)  = inj₂ (lemma∼αƛ M∼N) 
+abs-step (inj₂ M∼N)  = inj₂ (lemma∼αƛ M∼N)
 
 abs-star : ∀ {x M N} → M →α* N → ƛ x M →α* ƛ x N
 abs-star refl                 = refl
-abs-star (just M→αN)          = just   (abs-step M→αN) 
+abs-star (just M→αN)          = just   (abs-step M→αN)
 abs-star (trans M→α*N N→α*P)  = trans  (abs-star M→α*N) (abs-star N→α*P)
 
 app-step-l : ∀ {M N P} → M →α P  → M · N →α P · N
@@ -125,29 +125,29 @@ the standard library for proving the reduction of a term to another.
 open import Relation.Nullary
 open import Relation.Binary.PropositionalEquality renaming (sym to sym';trans to trans')
 open import Relation.Binary using (Preorder)
-import Relation.Binary.PreorderReasoning as PreR    
+import Relation.Binary.Reasoning.Preorder as PreR
 
 →-preorder : Preorder _ _ _
-→-preorder =  
-    record { 
+→-preorder =
+    record {
       Carrier = Λ;
       _≈_ = _≡_;
       _∼_ = _→α*_;
       isPreorder =  record {
         isEquivalence = Relation.Binary.Setoid.isEquivalence (PropEq.setoid Λ) ;
         reflexive = λ { {M} {.M} refl → refl};
-        trans = star.trans } 
+        trans = star.trans }
     }
 
-open PreR →-preorder renaming (begin_ to begin→_;_∼⟨_⟩_ to _→⟨_⟩_;_≈⟨_⟩_ to _=⟨_⟩_;_∎ to _▣) public
+open PreR →-preorder renaming (begin_ to begin→_;step-∼ to _→⟨_⟩_;step-≈ to _=⟨_⟩_;_∎ to _▣) public
 \end{code}
 
 -- \begin{code}
--- lemma▹* : {x : Atom} → (_*_ x) preserved-by (dual _▹_) 
+-- lemma▹* : {x : Atom} → (_*_ x) preserved-by (dual _▹_)
 -- lemma▹* {x} .{M [ y ≔ N ]} {ƛ y M · N} x*M[x≔N] ▹β
 --   = {!!}
 
--- lemma→α* : {x : Atom} → (_*_ x) preserved-by (dual _→β_) 
+-- lemma→α* : {x : Atom} → (_*_ x) preserved-by (dual _→β_)
 -- lemma→α* x*N           (ctxinj ▹β)   = lemma▹* x*N ▹β
 -- lemma→α* (*·l x*N)     (ctx·l M→βN)  = *·l (lemma→α* x*N M→βN)
 -- lemma→α* (*·r x*N')    (ctx·l M→βN)  = *·r x*N'
@@ -155,15 +155,15 @@ open PreR →-preorder renaming (begin_ to begin→_;_∼⟨_⟩_ to _→⟨_⟩
 -- lemma→α* (*·r x*N')    (ctx·r M→βN)  = *·r (lemma→α* x*N' M→βN)
 -- lemma→α* (*ƛ x*N y≢x)  (ctxƛ M→βN)   = *ƛ (lemma→α* x*N M→βN) y≢x
 
--- lemma→β# : {x : Atom} → (_#_ x) preserved-by (_→β_) 
+-- lemma→β# : {x : Atom} → (_#_ x) preserved-by (_→β_)
 -- lemma→β# = {!!} --dual-*-# lemma→α*
 
--- lemma→α# : {x : Atom} → (_#_ x) preserved-by (_→α_) 
+-- lemma→α# : {x : Atom} → (_#_ x) preserved-by (_→α_)
 -- lemma→α#      x#M (inj₁ M→βN)  = lemma→β# x#M M→βN
 -- lemma→α# {x}  x#M (inj₂ M~N)   = {!!} -- lemmaM∼N# M~N x x#M
 
 -- lemma→α*# : {x : Atom} → (_#_ x) preserved-by (_→α*_)
--- lemma→α*# x#M refl                 = x#M 
+-- lemma→α*# x#M refl                 = x#M
 -- lemma→α*# x#M (just M→αN)          = lemma→α# x#M M→αN
 -- lemma→α*# x#M (trans M→α*P P→α*N)  = lemma→α*# (lemma→α*# x#M M→α*P) P→α*N
 -- \end{code}
@@ -171,7 +171,7 @@ open PreR →-preorder renaming (begin_ to begin→_;_∼⟨_⟩_ to _→⟨_⟩
 -- Subject Reduction
 
 -- \begin{code}
--- lemma⊢→α* :  {Γ : Cxt}{α : Type}{M N : Λ} 
+-- lemma⊢→α* :  {Γ : Cxt}{α : Type}{M N : Λ}
 --              → Γ ⊢ M ∶ α → M →α* N → Γ ⊢ N ∶ α
 -- lemma⊢→α* Γ⊢M:α refl                  = Γ⊢M:α
 -- lemma⊢→α* Γ⊢M:α (just M→βN)           = lemma⊢→α Γ⊢M:α M→βN
