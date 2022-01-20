@@ -1,18 +1,23 @@
-FIXME: the holes require some lemma involving χ.
+Can we have the same tests with an abstract set of Atoms assuming that
+the atoms are different?
 
 \begin{code}
 open import Relation.Binary.Definitions using (Decidable)
 open import Relation.Binary.PropositionalEquality using (_≡_)
 
-import Atom
-module Norrish {Atom : Set} (_≟ₐ_ : Decidable {A = Atom} _≡_) (Χ : Atom.Chi _≟ₐ_) where
+module Norrish where
+open import Data.Nat hiding (equal)
+open import Atom _≟_
+open import Term-Nat
+open import Term _≟_ Χ-nat hiding (fv;_∈b_)
+open import Types _≟_ Χ-nat
+open import Parallel _≟_ Χ-nat
+open import Diamond _≟_ Χ-nat
+open import WeakNormalization _≟_ Χ-nat
 
-open import Atom _≟ₐ_
-open import Term _≟ₐ_ Χ hiding (fv;_∈b_)
-open import ListProperties
-open import TermRecursion _≟ₐ_ Χ hiding (idΛ)
+open import TermRecursion _≟_ Χ-nat hiding (idΛ)
 
-open import Data.Bool
+open import Data.Bool hiding (_≟_)
 open import Data.Empty
 open import Data.Nat hiding (equal)
 open import Data.Sum renaming (_⊎_ to _∨_)
@@ -46,6 +51,8 @@ idΛ = ΛIt Λ v _·_ ([] , ƛ)
 
 %<*constructors>
 \begin{code}
+Atom = ℕ
+
 isVar : Λ → Maybe Atom
 isVar = ΛIt  (Maybe Atom)
              just
@@ -91,7 +98,7 @@ equal = ΛIt (Λ → Bool) vareq appeq ([] , abseq)
   vareq : Atom → Λ → Bool
   vareq a M with isVar M
   ... | nothing  = false
-  ... | just b   = ⌊ a ≟ₐ b ⌋
+  ... | just b   = ⌊ a ≟ b ⌋
   appeq : (Λ → Bool) → (Λ → Bool) → Λ → Bool
   appeq fM fN P with isApp P
   ... | nothing         = false
@@ -99,7 +106,7 @@ equal = ΛIt (Λ → Bool) vareq appeq ([] , abseq)
   abseq : Atom → (Λ → Bool) → Λ → Bool
   abseq a fM N with isAbs N
   ... | nothing = false
-  ... | just (b , P) = ⌊ a ≟ₐ b ⌋ ∧ fM P
+  ... | just (b , P) = ⌊ a ≟ b ⌋ ∧ fM P
 \end{code}
 %</alphaEqual>
 
@@ -108,18 +115,18 @@ Observe that $\AgdaFunction{isAbs}$\ function also normalises $\AgdaBound{N}$, s
 Some tests:
 
 \begin{code}
-equal1 : ∀ {a b : Atom} → equal ((ƛ a (v a)) · (v a)) ((ƛ b (v b)) · (v a)) ≡ true
-equal1 {a} {b} = {!!}
+equal1 : equal ((ƛ 0 (v 0)) · (v 0)) ((ƛ 1 (v 1)) · (v 0)) ≡ true
+equal1 = refl
 --
-equal2 : ∀ {a b : Atom} → equal ((ƛ a (v a)) · (v b)) ((ƛ b (v b)) · (v a)) ≡ false
-equal2 = {!!}
+equal2 : equal ((ƛ 0 (v 0)) · (v 1)) ((ƛ 1 (v 1)) · (v 0)) ≡ false
+equal2 = refl
 \end{code}
 
 Another way to do decide alpha equality, is deciding syntatical equality over terms, then using idTerm we can normalise the parameters, and then check for syntactical equality between normalised terms.
 
 \begin{code}
 synEqual : Λ → Λ → Bool
-synEqual (v a)    (v b) = ⌊ a ≟ₐ b ⌋
+synEqual (v a)    (v b) = ⌊ a ≟ b ⌋
 synEqual (v a)    (_ · _)  = false
 synEqual (v a)    (ƛ _ _)  = false
 synEqual (M · N)  (v _)    = false
@@ -127,7 +134,7 @@ synEqual (M · N)  (P · Q)  = synEqual M P ∧ synEqual N Q
 synEqual (M · N)  (ƛ x P)  = false
 synEqual (ƛ a M)  (v _)    = false
 synEqual (ƛ a M)  (_ · _)  = false
-synEqual (ƛ a M)  (ƛ b N)  = ⌊ a ≟ₐ b ⌋ ∧ synEqual M N
+synEqual (ƛ a M)  (ƛ b N)  = ⌊ a ≟ b ⌋ ∧ synEqual M N
 --
 equal' : Λ → Λ → Bool
 equal' M N = synEqual (idΛ M) (idΛ N)
@@ -136,11 +143,11 @@ equal' M N = synEqual (idΛ M) (idΛ N)
 Some tests:
 
 \begin{code}
-equal'1 : ∀ {a b : Atom} → equal' ((ƛ a (v a)) · (v a)) ((ƛ b (v b)) · (v a)) ≡ true
-equal'1 = {!!}
+equal'1 : equal' ((ƛ 0 (v 0)) · (v 0)) ((ƛ 1 (v 1)) · (v 0)) ≡ true
+equal'1 = refl
 --
-equal'2 : ∀ {a b : Atom} → equal' ((ƛ a (v a)) · (v b)) ((ƛ b (v b)) · (v a)) ≡ false
-equal'2 = {!!}
+equal'2 : equal' ((ƛ 0 (v 0)) · (v 1)) ((ƛ 1 (v 1)) · (v 0)) ≡ false
+equal'2 = refl
 \end{code}
 
 
@@ -150,7 +157,7 @@ fv = ΛIt (List Atom) [_] _++_ ([] , λ v r → r -ₐ v)
 --
 infix 3 _∈b_
 _∈b_ : Atom → List Atom → Bool
-a ∈b as = ⌊ Any.any? (_≟ₐ_ a) as ⌋
+a ∈b as = ⌊ Any.any? (_≟_ a) as ⌋
 --
 infix 2 _⇒_
 \end{code}
@@ -181,7 +188,7 @@ vposns : Atom → Λ → List (List Direction)
 vposns a = ΛIt (List (List Direction)) varvposns appvposns ([ a ] , absvposns)
   where
   varvposns : Atom → List (List Direction)
-  varvposns b with a ≟ₐ b
+  varvposns b with a ≟ b
   ... | yes  _ = [ [] ]
   ... | no   _ = []
   appvposns : List (List Direction) → List (List Direction)
@@ -197,7 +204,7 @@ Test : v_posns 2 (ƛ 2 ((v 2) · (v 3)))
 %<*sub>
 \begin{code}
 hvar : Atom → Atom → Λ → Λ
-hvar x y with x ≟ₐ y
+hvar x y with x ≟ y
 ... | yes _ = id
 ... | no  _ = λ _ → (v y)
 --
