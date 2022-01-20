@@ -3,15 +3,16 @@ FIXME: revise comments in Spanish.
 open import Relation.Binary.Definitions
 open import Relation.Binary.PropositionalEquality hiding ([_])
 
-module TermInduction (Atom : Set) (_≟ₐ_ : Decidable {A = Atom} _≡_) where
+import Atom
+module TermInduction {Atom : Set} (_≟ₐ_ : Decidable {A = Atom} _≡_) (Χ : Atom.Chi _≟ₐ_) where
 
-open import Term Atom _≟ₐ_
-open import Atom Atom _≟ₐ_
-open import Alpha  Atom _≟ₐ_
+open import Term _≟ₐ_ Χ
+open import Atom _≟ₐ_
+open import Alpha _≟ₐ_ Χ
 open import ListProperties
-open import TermAcc  Atom _≟ₐ_
+open import TermAcc _≟ₐ_ Χ
 open import NaturalProperties
-open import Permutation  Atom _≟ₐ_
+open import Permutation _≟ₐ_ Χ
 
 open import Level
 open import Function
@@ -155,7 +156,7 @@ freshTerm' xs (M · N)  (acc· accM accN)
 freshTerm' xs (ƛ x M)  (accƛ facc)
   with any? (_≟ₐ_ x) xs -- puedo eliminar esto y renombrar igual siempre !!!
 ... | yes  x∈xs
-  with χ' (xs ++ fv M) | lemmaχ∉ (xs ++ fv M)
+  with χ' Χ (xs ++ fv M) | lemmaχ∉ Χ (xs ++ fv M)
 ... | z | z∉xs++fvM
   with freshTerm' xs (（ x ∙ z ） M) (facc z)
 ... | M'  , （xz）M∼M' , fM'

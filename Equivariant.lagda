@@ -2,10 +2,11 @@
 open import Relation.Binary.Definitions
 open import Relation.Binary.PropositionalEquality hiding ([_])
 
-module Equivariant (Atom : Set) (_≟ₐ_ : Decidable {A = Atom} _≡_) where
-open import Atom Atom _≟ₐ_
-open import Term Atom _≟ₐ_
-open import Permutation Atom _≟ₐ_
+import Atom
+module Equivariant {Atom : Set} (_≟ₐ_ : Decidable {A = Atom} _≡_) (Χ : Atom.Chi _≟ₐ_) where
+open import Atom _≟ₐ_
+open import Term _≟ₐ_ Χ
+open import Permutation _≟ₐ_ Χ
 
 open import Relation.Nullary
 open import Relation.Binary.PropositionalEquality as PropEq hiding ([_])

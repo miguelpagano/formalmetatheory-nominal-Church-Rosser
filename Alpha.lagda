@@ -1,15 +1,16 @@
 \begin{code}
 open import Relation.Binary.Definitions
 open import Relation.Binary.PropositionalEquality hiding ([_])
+import Atom
 
-module Alpha (Atom : Set) (_≟ₐ_ : Decidable {A = Atom} _≡_) where
+module Alpha {Atom : Set} (_≟ₐ_ : Decidable {A = Atom} _≡_) (Χ : Atom.Chi _≟ₐ_) where
 
-open import Term Atom _≟ₐ_
-open import Atom Atom _≟ₐ_
-open import Equivariant Atom _≟ₐ_
-open import Permutation Atom _≟ₐ_
+open import Term _≟ₐ_ Χ
+open import Atom _≟ₐ_
+open import Equivariant _≟ₐ_ Χ
+open import Permutation _≟ₐ_ Χ
 open import ListProperties
-open import TermAcc Atom _≟ₐ_
+open import TermAcc _≟ₐ_ Χ
 
 open import Level
 open import Relation.Nullary
@@ -79,8 +80,8 @@ lemma∼αƛ← {a} (∼αƛ xs f) = subst₂  (λ H P → H ∼α P)
                                    lemma（ab）（ab）M≡M
                                    (lemma∼αEquiv [ ( a , b ) ] (f b b∉xs))
   where
-  b = χ' xs
-  b∉xs = lemmaχ∉ xs
+  b = χ' Χ xs
+  b∉xs = lemmaχ∉ Χ xs
 -- --
 ρ : Reflexive _∼α_
 ρ {v a}    = ∼αv
@@ -283,10 +284,10 @@ lemma∼α* {a}                  (∼α· M∼αM' N∼αN')   (*·l a*M)     = 
 lemma∼α* {a}                  (∼α· M∼αM' N∼αN')   (*·r a*N)     = *·r (lemma∼α* N∼αN' a*N)
 lemma∼α* {a} {ƛ b M} {ƛ c N}  (∼αƛ xs f)        (*ƛ a*M b≢a)
   with
-  χ' (a ∷ b ∷ c ∷ [] ++ xs ++ Λ-atoms N) |
-  ∉-++⁻ˡ {v = χ' (a ∷ b ∷ c ∷ [] ++ xs ++ Λ-atoms N)} xs
-    (∉-++⁻ʳ (a ∷ b ∷ c ∷ []) (lemmaχ∉ (a ∷ b ∷ c ∷ [] ++ xs ++ Λ-atoms N))) |
-  (lemmaχ∉ (a ∷ b ∷ c ∷ [] ++ xs ++ Λ-atoms N))
+  χ' Χ (a ∷ b ∷ c ∷ [] ++ xs ++ Λ-atoms N) |
+  ∉-++⁻ˡ {v = χ' Χ (a ∷ b ∷ c ∷ [] ++ xs ++ Λ-atoms N)} xs
+    (∉-++⁻ʳ (a ∷ b ∷ c ∷ []) (lemmaχ∉ Χ (a ∷ b ∷ c ∷ [] ++ xs ++ Λ-atoms N))) |
+  (lemmaχ∉ Χ (a ∷ b ∷ c ∷ [] ++ xs ++ Λ-atoms N))
 ... | d | d∉xs | d∉abcxsN
   with lemma*swap← (lemma∼α* (f d d∉xs) (lemma*swap→ a≢d (sym≢ b≢a) a*M))
   where
@@ -313,7 +314,7 @@ lemma∼α# {a} {M} {N} M∼N a#M with a #? N
 ... | no ¬a#N = ⊥-elim (lemma-free→¬# (lemma∼α* (σ M∼N) (lemma¬#→free ¬a#N)) a#M)
 -- Chi Alpha Lemma
 χ∼α : (M N : Λ)(xs : List Atom) → M ∼α N → χ xs M ≡ χ xs N
-χ∼α M N xs M∼αN = lemmaχaux⊆ (xs ++ fv M) (xs ++ fv N) lemma⊆ lemma⊇
+χ∼α M N xs M∼αN = lemmaχaux⊆ Χ (xs ++ fv M) (xs ++ fv N) lemma⊆ lemma⊇
   where
   lemma⊆ : (xs ++ fv M) ⊆ (xs ++ fv N)
   lemma⊆ {a} a∈xs++fvM with ∈-++⁻ xs a∈xs++fvM
@@ -355,7 +356,7 @@ lemma∼α∀→∃# : {a b : Atom}{M N : Λ}{xs : List Atom} →
          ((c : Atom) →  c ∉ xs → （ a ∙ c ） M ∼α  （ b ∙ c ） N) →
          ∃ (λ c → c # ƛ a M ∧ c # ƛ b N ∧ （ a ∙ c ） M ∼α （ b ∙ c ） N)
 lemma∼α∀→∃# {a} {b} {M} {N} {xs} f
-  with χ' (xs ++ Λ-atoms (ƛ a M) ++ Λ-atoms (ƛ b N))  | lemmaχ∉ (xs ++ Λ-atoms (ƛ a M) ++ Λ-atoms (ƛ b N))
+  with χ' Χ (xs ++ Λ-atoms (ƛ a M) ++ Λ-atoms (ƛ b N))  | lemmaχ∉ Χ (xs ++ Λ-atoms (ƛ a M) ++ Λ-atoms (ƛ b N))
 ... | c | c∉xs++atomsƛaM++atomsƛbN
   =  c ,
      (lemma∉→#

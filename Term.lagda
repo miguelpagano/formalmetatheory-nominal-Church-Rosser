@@ -2,14 +2,15 @@
 open import Relation.Binary.Definitions
 open import Relation.Binary.PropositionalEquality hiding ([_])
 
-module Term (Atom : Set) (_≟ₐ_ : Decidable {A = Atom} _≡_) where
-open import Data.Nat as Nat hiding (_⊔_;_*_)
+import Atom
+module Term {Atom : Set} (_≟ₐ_ : Decidable {A = Atom} _≡_) (Χ : Atom.Chi _≟ₐ_) where
 
-open import Atom Atom _≟ₐ_
+open Atom _≟ₐ_
 open import ListProperties
 open import NaturalProperties
 
 open import Data.Bool hiding (_∨_;_≟_)
+open import Data.Nat as Nat hiding (_⊔_;_*_)
 open import Data.Product renaming (map to mapₓ)
 open import Data.Sum renaming (_⊎_ to _∨_;map to map+)
 open import Data.Empty
@@ -30,11 +31,7 @@ open DecTotalOrder NatProp.≤-decTotalOrder renaming (refl to ≤-refl)
 open NatProp.≤-Reasoning renaming (begin_ to start_; _∎ to _◽)
 open NatProp
 
--- We postulate the desired properties of Χ'.
-postulate
-  χ' : List Atom → Atom
-  lemmaχ∉ : (xs : List Atom) → χ' xs ∉ xs
-  lemmaχaux⊆ : (xs ys : List Atom) → xs ⊆ ys → ys ⊆ xs → χ' xs ≡ χ' ys
+open Chi public
 
 infix  9 _·_
 infix  2 _⊆ₜ_
@@ -324,15 +321,15 @@ lemmafv# {x} {M} x∉fvM with x #? M
 -- %</chi>
 
 \begin{code}
-χ xs M = χ' (xs ++ fv M)
+χ xs M = χ' Χ (xs ++ fv M)
 --
 χ∉ : (xs : List Atom)(M : Λ) → χ xs M ∉ xs
-χ∉ xs M = proj₁ (∉-++⁻ xs (lemmaχ∉ (xs ++ fv M)))
+χ∉ xs M = proj₁ (∉-++⁻ xs (lemmaχ∉ Χ (xs ++ fv M)))
 --
 χ# : (xs : List Atom)(M : Λ) → χ xs M # M
 χ# xs M with (χ xs M) #? M
 ... | yes χ#M = χ#M
-... | no ¬χ#M = ⊥-elim ((proj₂ (∉-++⁻ xs (lemmaχ∉ (xs ++ fv M))) (lemmafvfree← (χ xs M) M (lemma¬#→free ¬χ#M))) )
+... | no ¬χ#M = ⊥-elim ((proj₂ (∉-++⁻ xs (lemmaχ∉ Χ (xs ++ fv M))) (lemmafvfree← (χ xs M) M (lemma¬#→free ¬χ#M))) )
 --
 lemma*swap→ : {a b c : Atom}{M : Λ} → a ≢ c → a ≢ b → a * M → a * （ b ∙ c ） M
 lemma*swap→ {a} {b} {c} {v .a} a≢c a≢b *v with （ b ∙ c ）ₐ a | lemma∙ₐ b c a

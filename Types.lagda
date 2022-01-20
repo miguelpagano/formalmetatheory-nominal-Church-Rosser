@@ -2,20 +2,21 @@
 open import Relation.Binary.Definitions using (Decidable)
 open import Relation.Binary.PropositionalEquality using (_≡_)
 
-module Types (Atom : Set) (_≟ₐ_ : Decidable {A = Atom} _≡_) where
+import Atom
+module Types {Atom : Set} (_≟ₐ_ : Decidable {A = Atom} _≡_) (Χ : Atom.Chi _≟ₐ_) where
 
-open import Atom Atom _≟ₐ_
-open import Term Atom _≟ₐ_ hiding (fv)
-open import Alpha Atom _≟ₐ_ hiding (step-≡;step-∼)
-open import Beta Atom _≟ₐ_ hiding (step-≡)
-open import TermAcc Atom _≟ₐ_
+open import Atom _≟ₐ_
+open import Term _≟ₐ_ Χ hiding (fv)
+open import Alpha _≟ₐ_ Χ hiding (step-≡;step-∼)
+open import Beta _≟ₐ_ Χ hiding (step-≡)
+open import TermAcc _≟ₐ_ Χ
 open import ListProperties
-open import TermInduction Atom _≟ₐ_
-open import TermRecursion Atom _≟ₐ_
-open import Substitution Atom _≟ₐ_
-open import Permutation Atom _≟ₐ_
-open import FreeVariables Atom _≟ₐ_
-open import Parallel Atom _≟ₐ_
+open import TermInduction _≟ₐ_ Χ
+open import TermRecursion _≟ₐ_ Χ
+open import Substitution _≟ₐ_ Χ
+open import Permutation _≟ₐ_ Χ
+open import FreeVariables _≟ₐ_ Χ
+open import Parallel _≟ₐ_ Χ
 open import Relation Λ hiding (_++_) renaming (_⊆_ to _⊆R_)
 
 open import Data.List.Membership.Propositional renaming (_∈_ to _∈l_;_∉_ to _∉l_)
@@ -219,9 +220,9 @@ lemma⊢α {M}
   lemmaƛ M x PMπ {Γ} {α ⟶ β} {ƛ y N} (⊢ƛ .{x} .{α} .{β} Γ,x:α⊢M:β) (∼αƛ xs ∀z∉xs,（xz）M∼（yz）N)
     = ⊢ƛ weakening2
     where
-    z = χ' (y ∷ (xs ++ dom Γ ++ fv N))
+    z = χ' Χ (y ∷ (xs ++ dom Γ ++ fv N))
     z∉y∷xs++domΓ++fvN : z ∉l y ∷ (xs ++ dom Γ ++ fv N)
-    z∉y∷xs++domΓ++fvN  = lemmaχ∉ (y ∷ (xs ++ dom Γ ++ fv N))
+    z∉y∷xs++domΓ++fvN  = lemmaχ∉ Χ (y ∷ (xs ++ dom Γ ++ fv N))
     z∉xs++domΓ++fvN : z ∉l xs ++ dom Γ ++ fv N
     z∉xs++domΓ++fvN  = ∉-∷⁼ᵗ z∉y∷xs++domΓ++fvN
     z∉domΓ : z ∉l dom Γ

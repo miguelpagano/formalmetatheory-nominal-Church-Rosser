@@ -2,10 +2,11 @@
 open import Relation.Binary.Definitions
 open import Relation.Binary.PropositionalEquality hiding ([_])
 
-module TermAcc (Atom : Set) (_≟ₐ_ : Decidable {A = Atom} _≡_) where
+import Atom
+module TermAcc {Atom : Set} (_≟ₐ_ : Decidable {A = Atom} _≡_) (Χ : Atom.Chi _≟ₐ_) where
 
-open import Term Atom _≟ₐ_
-open import Atom Atom _≟ₐ_
+open import Term _≟ₐ_ Χ
+open import Atom _≟ₐ_
 
 -- Induction over terms size, perserved under swapping
 open import Data.Nat

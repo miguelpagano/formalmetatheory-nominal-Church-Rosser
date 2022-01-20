@@ -2,14 +2,15 @@
 open import Relation.Binary.Definitions
 open import Relation.Binary.PropositionalEquality hiding ([_])
 
-module TermRecursion (Atom : Set) (_≟ₐ_ : Decidable {A = Atom} _≡_) where
+import Atom
+module TermRecursion {Atom : Set} (_≟ₐ_ : Decidable {A = Atom} _≡_) (Χ : Atom.Chi _≟ₐ_) where
 
-open import Term Atom _≟ₐ_
-open import Alpha Atom _≟ₐ_ hiding (step-≡)
-open import TermAcc Atom _≟ₐ_
+open import Term _≟ₐ_ Χ
+open import Alpha _≟ₐ_ Χ hiding (step-≡)
+open import TermAcc _≟ₐ_ Χ
 open import ListProperties
-open import TermInduction Atom _≟ₐ_
-open import Permutation Atom _≟ₐ_
+open import TermInduction _≟ₐ_ Χ
+open import Permutation _≟ₐ_ Χ
 
 open import Level
 open import Function
@@ -149,7 +150,7 @@ lemmaΛItStrongαCompatible A hv h· xs hƛ
       with χ xs (ƛ a M) | χ xs (ƛ b N)
       |  χ# xs (ƛ a M) | χ# xs (ƛ b N)
       |  χ∼α  (ƛ a M) (ƛ b N) xs (∼αƛ {M} {N} {a} {b} vs fα)
-      |  χ' (vs ++ Λ-atoms (M · N)) | lemmaχ∉ (vs ++ Λ-atoms (M · N))
+      |  χ' Χ (vs ++ Λ-atoms (M · N)) | lemmaχ∉ Χ (vs ++ Λ-atoms (M · N))
     ... | c | .c | c#λaM | c#λbN | refl | d | d∉vs++Λ-atomsM·N
       = cong₂ hƛ refl (PπM [(a , c)] (（ b ∙ c ） N) （ac）M∼α（bc）N)
       where

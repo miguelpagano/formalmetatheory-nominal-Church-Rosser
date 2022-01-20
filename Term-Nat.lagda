@@ -1,9 +1,14 @@
-\begin{code}
-module Chi where
+Instead of assuming that the set of atoms is ℕ, we parameterise all
+the development with a type Atom whose equality is decidable.
+Moreover, we pack in a record the χ' function together with its main
+properties. In this module we use ℕ as Atoms and then instantiate the
+main modules with the χ' function for ℕ.
+
+\begin{code} module Term-Nat where
 
 open import Data.Nat as Nat
 open import Data.Nat.Properties
-open import Data.Bool hiding (_≟_;_∨_)
+open import Data.Bool hiding (_≟_;_∨_;_<_;_≤_)
 open import Data.Empty
 open import Function
 open import Data.Sum hiding (map) renaming (_⊎_ to _∨_)
@@ -18,28 +23,29 @@ open import Data.List.Relation.Unary.Any as Any hiding (map)
 open import Data.List.Relation.Unary.Any.Properties
 open import Data.List.Membership.Propositional
 open import Data.List.Membership.Propositional.Properties
+open import Data.List.Relation.Binary.Subset.Propositional
 open import Algebra.Structures
 open import Relation.Binary
 --
 --
 V = ℕ
 --
-f<s : (x : V)(xs : List V) → x ∈ xs → ((y : V) → y < x → y ∈[] xs) → (y : V) → y < (suc x) → y ∈[] xs
+f<s : (x : V)(xs : List V) → x ∈ xs → ((y : V) → y < x → y ∈ xs) → (y : V) → y < (suc x) → y ∈ xs
 f<s x xs x∈xs f< y sucy≤sucx with ≤⇒≤′ sucy≤sucx
 f<s x xs x∈xs f< .x _ | ≤′-refl            = x∈xs
 f<s x xs x∈xs f< y  _ | ≤′-step sucy<'sucx = f< y (≤′⇒≤ sucy<'sucx)
 --
-χaux : (n m k : V) → n + m ≡ k → (xs : List V) → ((y : V) → y < n → y ∈[] xs) →
-       ∃ (λ v → (v ∉[] xs ∨ v ≡ k) × ((y : V) → y < v → y ∈[] xs))
-χaux x 0        k   x+0≡k   _  f<  with trans (sym (n+0≡n x)) x+0≡k
+χaux : (n m k : V) → n + m ≡ k → (xs : List V) → ((y : V) → y < n → y ∈ xs) →
+       ∃ (λ v → (v ∉ xs ∨ v ≡ k) × ((y : V) → y < v → y ∈ xs))
+χaux x 0        k   x+0≡k   _  f<  with trans (sym (+-identityʳ x)) x+0≡k
 χaux x 0        .x  x+0≡k   _  f<  | refl
   = x , inj₂ refl , f<
 χaux x (suc n)  k   x+Sn≡k  xs f<
-  with any (_≟_ x) xs
+  with any? (_≟_ x) xs
 ... | no  x∉xs = x , inj₁ x∉xs , f<
 ... | yes x∈xs = χaux (suc x) n k (trans (cong suc (+-comm x n)) (trans (+-comm (suc n) x) x+Sn≡k)) xs (f<s x xs x∈xs f<)
 --
-y<0⇒y∈xs : (xs : List V)(y : V) → y < 0 → y ∈[] xs
+y<0⇒y∈xs : (xs : List V)(y : V) → y < 0 → y ∈ xs
 y<0⇒y∈xs xs y ()
 \end{code}
 
@@ -58,11 +64,11 @@ sucn≡sucm→n≡m refl = refl
 predn≡m→n≡sucm : {n m : ℕ} → n > 0 → pred n ≡ m → n ≡ suc m
 predn≡m→n≡sucm {suc n} {m} (s≤s _) n≡m = cong suc n≡m
 --
-x∈xs→|xs|>0 : {n : ℕ}{x : ℕ}{xs : List ℕ} → x ∈[] xs → n ≡ length' xs → n > 0
+x∈xs→|xs|>0 : {n : ℕ}{x : ℕ}{xs : List ℕ} → x ∈ xs → n ≡ length' xs → n > 0
 x∈xs→|xs|>0 .{suc (length' xs)} {x} {y ∷ xs} (here px)     refl = s≤s z≤n
 x∈xs→|xs|>0 .{suc (length' xs)} {x} {y ∷ xs} (there x∈xs)  refl = s≤s z≤n
 --
-del : (n : ℕ)(x : ℕ)(xs : List ℕ) → n ≡ length' xs → x ∈[] xs → Σₓ (List ℕ) (λ ys → pred n ≡ length' ys)
+del : (n : ℕ)(x : ℕ)(xs : List ℕ) → n ≡ length' xs → x ∈ xs → Σₓ (List ℕ) (λ ys → pred n ≡ length' ys)
 del .0       x   []        refl       ()
 del 0        _   (x ∷ xs)  ()         _
 del (suc n)  .x  (x ∷ xs)  n+1≡|xxs|  (here refl)
@@ -78,20 +84,20 @@ del (suc n)  x   (y ∷ xs)  n+1≡|yxs|  (there x∈xs)
   aux : {n : ℕ} → suc n ≤ n → ⊥
   aux (s≤s sucn≤n) = aux sucn≤n
 --
-del∈ : (x : ℕ)(xs : List ℕ) → (x∈xs : x ∈[] xs) → (y : ℕ) → y < x → y ∈[] xs → y ∈[] (proj₁ (del (length' xs) x xs refl x∈xs))
+del∈ : (x : ℕ)(xs : List ℕ) → (x∈xs : x ∈ xs) → (y : ℕ) → y < x → y ∈ xs → y ∈ (proj₁ (del (length' xs) x xs refl x∈xs))
 del∈ x []         ()            y   y<x y∈xs
 del∈ x (.x ∷ xs)  (here refl)   .x  x<x (here refl)    = ⊥-elim ((<→≢ x<x) refl)
 del∈ x (.x ∷ xs)  (here refl)   y   y<x (there y∈xs)   = y∈xs
 del∈ x (.y ∷ xs)  (there x∈xs)  y   y<x (here refl)    = here refl
 del∈ x (z ∷ xs)   (there x∈xs)  y   y<x (there y∈xs)   = there (del∈ x xs x∈xs y y<x y∈xs)
 --
-palomar-aux : (n : ℕ)(xs : List V) → ((y : V) → y ≤ n → y ∈[] xs) → n ≡ length' xs → ⊥
+palomar-aux : (n : ℕ)(xs : List V) → ((y : V) → y ≤ n → y ∈ xs) → n ≡ length' xs → ⊥
 palomar-aux .0 []        f refl with f 0 z≤n
 ... | ()
 palomar-aux 0 (x ∷ xs) f ()
-palomar-aux (suc n) (x ∷ xs) f sucn≡suc|xs| with any (_≟_ (length' (x ∷ xs))) (x ∷ xs)
+palomar-aux (suc n) (x ∷ xs) f sucn≡suc|xs| with any? (_≟_ (length' (x ∷ xs))) (x ∷ xs)
 palomar-aux (suc n) (x ∷ xs) f sucn≡suc|xs|
-    | no |x∷xs|∉x∷xs = ⊥-elim (|x∷xs|∉x∷xs  (f (suc (length' xs)) (subst₂ _≤_ refl (sym sucn≡suc|xs|) (n≤m+n 0 (suc (length' xs))))))
+    | no |x∷xs|∉x∷xs = ⊥-elim (|x∷xs|∉x∷xs  (f (suc (length' xs)) (subst₂ _≤_ refl (sym sucn≡suc|xs|) (m≤n+m (suc (length' xs)) 0))))
 palomar-aux (suc n) (x ∷ xs) f sucn≡suc|xs|
     | yes |x∷xs|∈x∷xs
   with proj₁ (del (length' (x ∷ xs)) (length' (x ∷ xs)) (x ∷ xs) refl |x∷xs|∈x∷xs) |
@@ -101,13 +107,13 @@ palomar-aux (suc n) (x ∷ xs)  f sucn≡suc|xs|
     | yes |x∷xs|∈x∷xs | ys | |xs|≡|ys| | f2
  = palomar-aux n ys fys (trans (sucn≡sucm→n≡m sucn≡suc|xs|) |xs|≡|ys|)
   where
-  fys : (y : V) → y ≤ n → y ∈[] ys
+  fys : (y : V) → y ≤ n → y ∈ ys
   fys y y≤n = f2 y (s≤s (subst₂ _≤_ refl (sucn≡sucm→n≡m sucn≡suc|xs|) y≤n)) (f y (≤-step y≤n))
 --
-palomar : (n : V)(xs : List V) → ((y : V) → y < n → y ∈[] xs) → n ≡ length' xs → n ∉[] xs
+palomar : (n : V)(xs : List V) → ((y : V) → y < n → y ∈ xs) → n ≡ length' xs → n ∉ xs
 palomar .(length' xs) xs f refl |xs|∈xs = palomar-aux (length' xs) xs (faux (length' xs) xs |xs|∈xs f refl) refl
   where
-  faux : (n : ℕ)(xs : List ℕ) → length' xs ∈[] xs → ((y : V) → y < n → y ∈[] xs) → n ≡ length' xs → (y : ℕ)  → y ≤ length' xs → y ∈[] xs
+  faux : (n : ℕ)(xs : List ℕ) → length' xs ∈ xs → ((y : V) → y < n → y ∈ xs) → n ≡ length' xs → (y : ℕ)  → y ≤ length' xs → y ∈ xs
   faux .(length' xs) xs |xs|∈xs  f refl  y y≤|xs| with ≤⇒≤′ y≤|xs|
   faux .0 [] |xs|∈xs  f refl .0  y≤|xs|
     | ≤′-refl = |xs|∈xs
@@ -118,7 +124,7 @@ palomar .(length' xs) xs f refl |xs|∈xs = palomar-aux (length' xs) xs (faux (l
   faux .(suc (length' xs)) (x ∷ xs) |xs|∈xs f refl (suc y) (s≤s a)
     | ≤′-step b =  f (suc y) (s≤s (≤′⇒≤ b))
 --
-lemmaχ∉ : (xs : List V) → χ' xs ∉[] xs
+lemmaχ∉ : (xs : List V) → χ' xs ∉ xs
 lemmaχ∉ xs with χaux 0 (length' xs) (length' xs) refl xs (y<0⇒y∈xs xs)
 ... | v                , inj₁ v∉xs , _   = v∉xs
 ... | .((length' xs)) , inj₂ refl , f    = palomar (length' xs) xs f refl
@@ -132,7 +138,7 @@ lemmaχ∉ xs with χaux 0 (length' xs) (length' xs) refl xs (y<0⇒y∈xs xs)
     | inj₂ refl       = inj₂ refl
 --
 <≡ : (n m : ℕ) → n < m ∨ m < n ∨ n ≡ m
-<≡ n m with total n m
+<≡ n m with ≤-total n m
 ... | inj₂ m≤n = inj₂ (≤→<∨≡ m n m≤n)
 ... | inj₁ n≤m with ≤→<∨≡ n m n≤m
 ...    | inj₁ n<m = inj₁ n<m
@@ -153,4 +159,16 @@ lemmaχaux⊆ xs ys xs⊆ys ys⊆xs
 ... | inj₁ x<y         = ⊥-elim (x∉xs (ys⊆xs (fy x x<y)))
 ... | inj₂ (inj₁ y<x)  = ⊥-elim (y∉ys (xs⊆ys (fx y y<x)))
 ... | inj₂ (inj₂ x≡y)  = x≡y
+\end{code}
+
+\begin{code}
+import Atom
+Χ-nat : Atom.Chi _≟_
+Χ-nat = record { χ' = χ' ; lemmaχ∉ = lemmaχ∉ ; lemmaχaux⊆ = lemmaχaux⊆ }
+
+open import Term _≟_ Χ-nat
+open import Types _≟_ Χ-nat
+open import Parallel _≟_ Χ-nat
+open import Diamond _≟_ Χ-nat
+open import WeakNormalization _≟_ Χ-nat
 \end{code}

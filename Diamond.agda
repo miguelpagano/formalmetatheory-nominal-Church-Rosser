@@ -1,18 +1,19 @@
 open import Relation.Binary.Definitions using (Decidable)
 open import Relation.Binary.PropositionalEquality using (_≡_)
 
-module Diamond (Atom : Set) (_≟ₐ_ : Decidable {A = Atom} _≡_) where
+import Atom
+module Diamond {Atom : Set} (_≟ₐ_ : Decidable {A = Atom} _≡_) (Χ : Atom.Chi _≟ₐ_) where
 
-open import Atom Atom _≟ₐ_
-open import Term Atom _≟ₐ_ hiding (fv)
-open import Alpha Atom _≟ₐ_ hiding (step-≡)
-open import TermAcc Atom _≟ₐ_
+open import Atom _≟ₐ_
+open import Term _≟ₐ_ Χ hiding (fv)
+open import Alpha _≟ₐ_ Χ hiding (step-≡)
+open import TermAcc _≟ₐ_ Χ
 open import ListProperties
-open import TermInduction Atom _≟ₐ_
-open import TermRecursion Atom _≟ₐ_
-open import Substitution Atom _≟ₐ_
-open import FreeVariables Atom _≟ₐ_
-open import Parallel Atom _≟ₐ_
+open import TermInduction _≟ₐ_ Χ
+open import TermRecursion _≟ₐ_ Χ
+open import Substitution _≟ₐ_ Χ
+open import FreeVariables _≟ₐ_ Χ
+open import Parallel _≟ₐ_ Χ
 open import Relation Λ hiding (_++_) renaming (_⊆_ to _⊆R_)
 
 open import Data.Empty

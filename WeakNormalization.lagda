@@ -2,23 +2,23 @@
 open import Relation.Binary.Definitions using (Decidable)
 open import Relation.Binary.PropositionalEquality using (_≡_)
 
-module WeakNormalization (Atom : Set) (_≟ₐ_ : Decidable {A = Atom} _≡_) where
-
-open import Atom Atom _≟ₐ_
-open import Term Atom _≟ₐ_ hiding (fv)
-open import Beta Atom _≟ₐ_ hiding (step-≡)
-open import Alpha Atom _≟ₐ_ hiding (step-≡)
-open import TermAcc Atom _≟ₐ_
+import Atom
+module WeakNormalization {Atom : Set} (_≟ₐ_ : Decidable {A = Atom} _≡_) (Χ : Atom.Chi _≟ₐ_) where
+open import Atom _≟ₐ_
+open import Term _≟ₐ_ Χ hiding (fv)
+open import Beta _≟ₐ_ Χ hiding (step-≡)
+open import Alpha _≟ₐ_ Χ hiding (step-≡)
+open import TermAcc _≟ₐ_ Χ
 open import ListProperties
-open import Permutation Atom _≟ₐ_
-open import Equivariant Atom _≟ₐ_
-open import TermInduction Atom _≟ₐ_
-open import TermRecursion Atom _≟ₐ_
-open import Substitution Atom _≟ₐ_
-open import FreeVariables Atom _≟ₐ_
-open import Parallel Atom _≟ₐ_
+open import Permutation _≟ₐ_ Χ
+open import Equivariant _≟ₐ_ Χ
+open import TermInduction _≟ₐ_ Χ
+open import TermRecursion _≟ₐ_ Χ
+open import Substitution _≟ₐ_ Χ
+open import FreeVariables _≟ₐ_ Χ
+open import Parallel _≟ₐ_ Χ
 open import Relation Λ hiding (_++_) renaming (_⊆_ to _⊆R_)
-open import Types Atom _≟ₐ_
+open import Types _≟ₐ_ Χ
 
 open import Data.Empty
 open import Data.Bool hiding (_∨_;_≟_;_≤_;_<_)

@@ -2,19 +2,20 @@
 open import Relation.Binary.Definitions using (Decidable)
 open import Relation.Binary.PropositionalEquality using (_≡_)
 
-module Parallel (Atom : Set) (_≟ₐ_ : Decidable {A = Atom} _≡_) where
+import Atom
+module Parallel {Atom : Set} (_≟ₐ_ : Decidable {A = Atom} _≡_) (Χ : Atom.Chi _≟ₐ_) where
 
-open import Atom Atom _≟ₐ_
-open import Equivariant Atom _≟ₐ_
-open import Term Atom _≟ₐ_ hiding (fv)
-open import Alpha Atom _≟ₐ_ hiding (step-≡)
-open import TermAcc Atom _≟ₐ_
+open import Atom _≟ₐ_
+open import Equivariant _≟ₐ_ Χ
+open import Term _≟ₐ_ Χ hiding (fv)
+open import Alpha _≟ₐ_ Χ hiding (step-≡)
+open import TermAcc _≟ₐ_ Χ
 open import ListProperties
-open import Permutation Atom _≟ₐ_
-open import TermInduction Atom _≟ₐ_
-open import TermRecursion Atom _≟ₐ_
-open import Substitution Atom _≟ₐ_
-open import FreeVariables Atom _≟ₐ_
+open import Permutation _≟ₐ_ Χ
+open import TermInduction _≟ₐ_ Χ
+open import TermRecursion _≟ₐ_ Χ
+open import Substitution _≟ₐ_ Χ
+open import FreeVariables _≟ₐ_ Χ
 open import Relation Λ hiding (_++_;trans) renaming (_⊆_ to _⊆R_)
 
 open import Data.Empty
@@ -163,8 +164,8 @@ lemma⇉# {M} {x} = TermαIndPerm
    lemmaƛ M b   b∉[x] PπM {ƛ y N} (#ƛ x#M)  (⇉ƛ xs fxs)
      = corollarylemma*swap→ x≢z (PπM [ ( b , z ) ] x#（bz）M (fxs z z∉xs))
      where
-     z = χ' (x ∷ fv N ++ xs)
-     z∉x∷fvN++xs = lemmaχ∉ (x ∷ fv N ++ xs)
+     z = χ' Χ (x ∷ fv N ++ xs)
+     z∉x∷fvN++xs = lemmaχ∉ Χ (x ∷ fv N ++ xs)
      z∉xs : z ∉ xs
      z∉xs = ∉-++⁻ʳ (x ∷ fv N) z∉x∷fvN++xs
      x≢z : x ≢ z
@@ -188,11 +189,11 @@ lemma⇉ƛrule {M} {ƛ y M'} {x} (⇉ƛ xs fxs)
   ƛyM'∼ƛx（yx）M' : ƛ y M' ∼α ƛ x (（ y ∙ x ） M')
   ƛyM'∼ƛx（yx）M' = lemma∼αλ' x#ƛyM'
   z : Atom
-  z = χ' (xs ++ fv (ƛ y M'))
+  z = χ' Χ (xs ++ fv (ƛ y M'))
   z∉xs : z ∉ xs
-  z∉xs = ∉-++⁻ˡ xs (lemmaχ∉ (xs ++ fv (ƛ y M')))
+  z∉xs = ∉-++⁻ˡ xs (lemmaχ∉ Χ (xs ++ fv (ƛ y M')))
   z#ƛyM' : z # ƛ y M'
-  z#ƛyM' = lemma∉fv→# (∉-++⁻ʳ xs (lemmaχ∉ (xs ++ fv (ƛ y M'))))
+  z#ƛyM' = lemma∉fv→# (∉-++⁻ʳ xs (lemmaχ∉ Χ (xs ++ fv (ƛ y M'))))
   M⇉（yx）M' : M ⇉ （ y ∙ x ） M'
   M⇉（yx）M' = lemma⇉αright
                  (subst (λ H → H ⇉ （ x ∙ z ） （ y ∙ z ） M') lemma（ab）（ab）M≡M (lemma⇉Equiv [ (x , z) ] (fxs z z∉xs)))

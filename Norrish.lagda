@@ -4,12 +4,13 @@ FIXME: the holes require some lemma involving χ.
 open import Relation.Binary.Definitions using (Decidable)
 open import Relation.Binary.PropositionalEquality using (_≡_)
 
-module Norrish (Atom : Set) (_≟ₐ_ : Decidable {A = Atom} _≡_) where
+import Atom
+module Norrish {Atom : Set} (_≟ₐ_ : Decidable {A = Atom} _≡_) (Χ : Atom.Chi _≟ₐ_) where
 
-open import Atom Atom _≟ₐ_
-open import Term Atom _≟ₐ_ hiding (fv;_∈b_)
+open import Atom _≟ₐ_
+open import Term _≟ₐ_ Χ hiding (fv;_∈b_)
 open import ListProperties
-open import TermRecursion Atom _≟ₐ_ hiding (idΛ)
+open import TermRecursion _≟ₐ_ Χ hiding (idΛ)
 
 open import Data.Bool
 open import Data.Empty

@@ -2,18 +2,19 @@
 open import Relation.Binary.Definitions
 open import Relation.Binary.PropositionalEquality hiding ([_])
 
-module Substitution (Atom : Set) (_≟ₐ_ : Decidable {A = Atom} _≡_) where
+import Atom
+module Substitution {Atom : Set} (_≟ₐ_ : Decidable {A = Atom} _≡_) (Χ : Atom.Chi _≟ₐ_) where
 
-open import Atom Atom _≟ₐ_
-open import Term Atom _≟ₐ_ hiding (fv)
-open import Alpha Atom _≟ₐ_ hiding (step-≡)
-open import TermAcc Atom _≟ₐ_
+open import Atom _≟ₐ_
+open import Term _≟ₐ_ Χ hiding (fv)
+open import Alpha _≟ₐ_ Χ hiding (step-≡)
+open import TermAcc _≟ₐ_ Χ
 open import ListProperties
-open import TermInduction Atom _≟ₐ_
-open import TermRecursion Atom _≟ₐ_
-open import Permutation Atom _≟ₐ_
-open import Equivariant Atom _≟ₐ_
-open import FreeVariables Atom _≟ₐ_
+open import TermInduction _≟ₐ_ Χ
+open import TermRecursion _≟ₐ_ Χ
+open import Permutation _≟ₐ_ Χ
+open import Equivariant _≟ₐ_ Χ
+open import FreeVariables _≟ₐ_ Χ
 
 open import Data.Empty
 open import Data.Sum renaming (_⊎_ to _∨_)
