@@ -149,7 +149,7 @@ lemma*→free : ∀ {a M} → a * M →  a free M
 lemma*→free *v                        = lemmavfree refl
 lemma*→free {a} {M · N} (*·l a*M)     = lemma·rfree {a} {M} N (lemma*→free a*M)
 lemma*→free {a} {M · N} (*·r a*N)     = lemma·lfree {a} M {N} (lemma*→free a*N)
-lemma*→free {a} {ƛ b M} (*ƛ a*M a≢b)  = lemmaƛfree {b} {a} {M} (lemma*→free a*M) (sym≢ a≢b)
+lemma*→free {a} {ƛ b M} (*ƛ a*M a≢b)  = lemmaƛfree {b} {a} {M} (lemma*→free a*M) (≢-sym a≢b)
 --
 Pfs2 : Atom → Λ → Set
 Pfs2 a M = ∀ b c → a ≢ b → a ≢ c → a free (（ b ∙ c ） M) → a free M
@@ -177,7 +177,7 @@ lemmafree→* {a} {M}
          → (Pf* a M)
          → Pf* a (ƛ b M)
   lemmaƛ M b b∉[a] Hi afree（bc）M rewrite freeλ a b M with χ [ a ] (ƛ b M) | χ∉ [ a ] (ƛ b M)
-  ... | c | c∉[a] = *ƛ (Hi (lemmaFreeSwap2 M a b c a≢b a≢c afree（bc）M)) (sym≢ a≢b)
+  ... | c | c∉[a] = *ƛ (Hi (lemmaFreeSwap2 M a b c a≢b a≢c afree（bc）M)) (≢-sym a≢b)
     where
     a≢b = λ a≡b → b∉[a] (here (sym a≡b))
     a≢c = λ a≡c → c∉[a] (here (sym a≡c))
@@ -331,7 +331,7 @@ lemmafv* {a} {M} = TermαIndPerm (Pfv* a) (αCompatiblePfv* a) lemmav lemma· ([
   ... | c | ¬a≟c=true , a∈fv（bc）M with a ≟ₐ c
   lemmaƛ M b b∉[a] f a∈fvƛbM | .a | a∈fv（ba）M , a≢a  | yes refl = ⊥-elim (a≢a refl)
   lemmaƛ M b b∉[a] f a∈fvƛbM | c  | a∈fv（bc）M  , _ | no a≢c
-    = *ƛ (lemma*swap←≢ (sym≢ b≢a) a≢c  (f [(b , c)] a∈fv（bc）M)) b≢a
+    = *ƛ (lemma*swap←≢ (≢-sym b≢a) a≢c  (f [(b , c)] a∈fv（bc）M)) b≢a
     where
     b≢a : b ≢ a
     b≢a = λ b≡a → (⊥-elim (b∉[a] (here b≡a)))

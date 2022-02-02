@@ -53,6 +53,4 @@ lemmam>0∧n>0→m+n>1 {suc m} {suc n} (s≤s _) (s≤s _) =  start
 >1→¬≤1 : ∀ {n} → n > 1 → n ≤ 1 → ⊥
 >1→¬≤1 {n} suc1≤n n≤1 = NatProp.1+n≰n {1} (start suc 1 ≤⟨ suc1≤n ⟩ n ≤⟨ n≤1 ⟩ 1 ◽)
 --
-a≢b∧a≡c→c≢b : {a b c : ℕ} → a ≢ b → a ≡ c → c ≢ b
-a≢b∧a≡c→c≢b a≢b refl = a≢b
  \end{code}

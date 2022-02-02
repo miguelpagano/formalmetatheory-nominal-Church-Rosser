@@ -340,8 +340,8 @@ lemma*swap→ a≢c a≢b (*·l a*M) = *·l (lemma*swap→ a≢c a≢b a*M)
 lemma*swap→ a≢c a≢b (*·r a*M) = *·r (lemma*swap→ a≢c a≢b a*M)
 lemma*swap→ {a} {b} {c} {ƛ d M} a≢c a≢b (*ƛ a*M d≢a)
   with （ b ∙ c ）ₐ d | lemma∙ₐ b c d
-... | .c  | inj₁ (d≡b , refl)               = *ƛ (lemma*swap→ a≢c a≢b a*M) (sym≢ a≢c)
-... | .b  | inj₂ (inj₁ (d≡c , _   , refl))        = *ƛ (lemma*swap→ a≢c a≢b a*M) (sym≢ a≢b)
+... | .c  | inj₁ (d≡b , refl)               = *ƛ (lemma*swap→ a≢c a≢b a*M) (≢-sym a≢c)
+... | .b  | inj₂ (inj₁ (d≡c , _   , refl))        = *ƛ (lemma*swap→ a≢c a≢b a*M) (≢-sym a≢b)
 ... | .d  | inj₂ (inj₂ (d≢b , d≢c , refl))  = *ƛ (lemma*swap→ a≢c a≢b a*M) d≢a
 --
 lemma*swap← : {a b c : Atom}{M : Λ} → a * （ b ∙ c ） M → (a ≢ b × a ≢ c × a * M) ∨ (a ≡ b × c * M) ∨ (a ≢ b × a ≡ c × b * M)
@@ -356,12 +356,12 @@ lemma*swap← {a} {b} {c} {M · N}   (*·l a*（bc）M)  = map+ (mapₓ id (map�
 lemma*swap← {a} {b} {c} {M · N}   (*·r a*（bc）N)  = map+ (mapₓ id (mapₓ id *·r)) (map+ (mapₓ id *·r) (mapₓ id (mapₓ id *·r))) (lemma*swap← a*（bc）N)
 lemma*swap← {a} {b} {c} {ƛ d M}   (*ƛ a*（bc）M （bc）d≢a) with （ b ∙ c ）ₐ d | lemma∙ₐ b c d
 lemma*swap← {a} {b} {c} {ƛ .b M}  (*ƛ a*（bc）M c≢a)  | .c | inj₁ (refl , refl) with lemma*swap← a*（bc）M
-... | inj₁ (a≢b , a≢c , a*M)    =  inj₁ (a≢b , a≢c , *ƛ a*M (sym≢ a≢b))
+... | inj₁ (a≢b , a≢c , a*M)    =  inj₁ (a≢b , a≢c , *ƛ a*M (≢-sym a≢b))
 ... | inj₂ (inj₂ (_ , a≡c , b*M))   = ⊥-elim (c≢a (sym a≡c))
 lemma*swap← {a} {.a} {c} {ƛ .a M} (*ƛ a*（bc）M c≢a)  | .c | inj₁ (refl , refl)
-    | inj₂ (inj₁ (refl , c*M))  =  inj₂ (inj₁ (refl , *ƛ c*M (sym≢ c≢a)))
+    | inj₂ (inj₁ (refl , c*M))  =  inj₂ (inj₁ (refl , *ƛ c*M (≢-sym c≢a)))
 lemma*swap← {a} {b} {c} {ƛ .c M} (*ƛ a*（bc）M b≢a)  | .b | inj₂ (inj₁ (refl , _ , refl)) with lemma*swap← a*（bc）M
-... | inj₁ (a≢b , a≢c , a*M)    = inj₁ (a≢b , a≢c , *ƛ a*M (sym≢ a≢c))
+... | inj₁ (a≢b , a≢c , a*M)    = inj₁ (a≢b , a≢c , *ƛ a*M (≢-sym a≢c))
 ... | inj₂ (inj₁ (a≡b , c*M))   =  ⊥-elim (b≢a (sym a≡b))
 lemma*swap← {a} {b} {.a} {ƛ c M} (*ƛ a*（bc）M b≢a) | .b
   | inj₂ (inj₁ (refl , c≠b , refl))

@@ -169,7 +169,7 @@ lemma⇉# {M} {x} = TermαIndPerm
      z∉xs : z ∉ xs
      z∉xs = ∉-++⁻ʳ (x ∷ fv N) z∉x∷fvN++xs
      x≢z : x ≢ z
-     x≢z = sym≢ (∉-∷⁼ (here refl) z∉x∷fvN++xs)
+     x≢z = ≢-sym (∉-∷⁼ (here refl) z∉x∷fvN++xs)
      x≢b : x ≢ b
      x≢b x≡b = ⊥-elim (b∉[x] (here (sym x≡b)))
      x#（bz）M : x # （ b ∙ z ） M

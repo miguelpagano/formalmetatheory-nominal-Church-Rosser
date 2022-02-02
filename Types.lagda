@@ -153,7 +153,7 @@ lemmaWeakening⊢# {Γ} {x}  x#ƛyM          (⊢ƛ {y} Γ,y:α⊢M∶β)
 lemmaWeakening⊢#          x#ƛyM          (⊢ƛ {y} Γ,y:α⊢M∶β)
     | yes refl  = ⊢ƛ (lemmaWeakening⊢ lemma⊆x Γ,y:α⊢M∶β)
 lemmaWeakening⊢# {Γ} {x}  x#ƛyM          (⊢ƛ {y} Γ,y:α⊢M∶β)
-    | no  x≢y   = ⊢ƛ (lemmaWeakening⊢ (lemma⊆xy (sym≢ x≢y)) (lemmaWeakening⊢# (lemma#λ x≢y x#ƛyM) Γ,y:α⊢M∶β))
+    | no  x≢y   = ⊢ƛ (lemmaWeakening⊢ (lemma⊆xy (≢-sym x≢y)) (lemmaWeakening⊢# (lemma#λ x≢y x#ƛyM) Γ,y:α⊢M∶β))
 \end{code}
 
 %<*typeweakening#>
@@ -245,7 +245,7 @@ lemma⊢α {M}
     lemma⊂ : （ y ∙ z ）ₗ Γ ‚ y ∶ α ‚ z ∶ α ⊆ Γ ‚ y ∶ α ‚ z ∶ α
     lemma⊂ = begin⊆
               （ y ∙ z ）ₗ Γ ‚ y ∶ α ‚ z ∶ α
-               M.∼⟨ lemma⊆xy (sym≢ z≢y) ⟩
+               M.∼⟨ lemma⊆xy (≢-sym z≢y) ⟩
               （ y ∙ z ）ₗ Γ ‚ z ∶ α ‚ y ∶ α
              M.∼⟨  lemma⊆∷ (lemma（）⊆ z∉domΓ) ⟩
                Γ ‚ z ∶ α ‚ y ∶ α
@@ -279,7 +279,7 @@ lemma⊢[] {x} {N} {M}
     rewrite lemmahvar≡ {x} {N}
     = Γ⊢N∶β
   lemmav y (⊢v (there y≢x y∈))  Γ⊢N∶β
-    rewrite lemmahvar≢ {x} {y} {N} (sym≢ y≢x)
+    rewrite lemmahvar≢ {x} {y} {N} (≢-sym y≢x)
     = ⊢v y∈
   lemma· : (P Q : Λ) → P⊢[] x N P → P⊢[] x N Q → P⊢[] x N (P · Q)
   lemma· P Q hiP hiQ (⊢· Γ⊢P∶α→γ Γ⊢Q∶α)  Γ⊢N∶β
@@ -291,7 +291,7 @@ lemma⊢[] {x} {N} {M}
     b#N : b # N
     b#N = lemma∉fv→# (b∉x∷fvN ∘ there)
     x≢b : x ≢ b
-    x≢b = sym≢ (∉-∷⁼ (here refl) b∉x∷fvN)
+    x≢b = ≢-sym (∉-∷⁼ (here refl) b∉x∷fvN)
 \end{code}
 %</typesusbstterm>
 

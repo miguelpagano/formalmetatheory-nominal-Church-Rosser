@@ -212,7 +212,7 @@ lemmaSw[]
            （ （ a ∙ b ）ₐ e ∙ g ） ((（ （ a ∙ b ）ₐ d ∙ （ a ∙ b ）ₐ e ） （ a ∙ b ） M) [ （ a ∙ b ）ₐ c ≔ （ a ∙ b ） N ])
          ∼⟨ Ps[]M ((（ a ∙ b ）ₐ d , （ a ∙ b ）ₐ e)  ∷ ( a , b ) ∷ []) (（ a ∙ b ）ₐ e) g (（ a ∙ b ）ₐ c) (（ a ∙ b ） N) ⟩
             ((（ （ a ∙ b ）ₐ e ∙ g ） （ （ a ∙ b ）ₐ d ∙ （ a ∙ b ）ₐ e ） （ a ∙ b ） M) [ （ （ a ∙ b ）ₐ e ∙ g ）ₐ （ a ∙ b ）ₐ c ≔ （ （ a ∙ b ）ₐ e ∙ g ） （ a ∙ b ） N ])
-         ≈⟨ cong (λ x → (（ （ a ∙ b ）ₐ e ∙ g ） （ （ a ∙ b ）ₐ d ∙ （ a ∙ b ）ₐ e ） （ a ∙ b ） M) [ x ≔ （ （ a ∙ b ）ₐ e ∙ g ） （ a ∙ b ） N ]) (lemma∙ₐc≢a∧c≢b (lemma∙ₐinj (sym≢ e≢c)) (sym≢ (g≢（ab）c g∉vs))) ⟩
+         ≈⟨ cong (λ x → (（ （ a ∙ b ）ₐ e ∙ g ） （ （ a ∙ b ）ₐ d ∙ （ a ∙ b ）ₐ e ） （ a ∙ b ） M) [ x ≔ （ （ a ∙ b ）ₐ e ∙ g ） （ a ∙ b ） N ]) (lemma∙ₐc≢a∧c≢b (lemma∙ₐinj (≢-sym e≢c)) (≢-sym (g≢（ab）c g∉vs))) ⟩
             (（ （ a ∙ b ）ₐ e ∙ g ） （ （ a ∙ b ）ₐ d ∙ （ a ∙ b ）ₐ e ） （ a ∙ b ） M) [ （ a ∙ b ）ₐ c ≔ （ （ a ∙ b ）ₐ e ∙ g ） （ a ∙ b ） N ]
          ∼⟨ lemmaSubst2 (（ （ a ∙ b ）ₐ e ∙ g ） （ （ a ∙ b ）ₐ d ∙ （ a ∙ b ）ₐ e ） （ a ∙ b ） M) (（ a ∙ b ）ₐ c) (σ (lemma#∼α （ab）e#（ab）N (g#（ab）N g∉vs))) ⟩
             (（ （ a ∙ b ）ₐ e ∙ g ） （ （ a ∙ b ）ₐ d ∙ （ a ∙ b ）ₐ e ） （ a ∙ b ） M) [ （ a ∙ b ）ₐ c ≔ （ a ∙ b ） N ]
@@ -222,7 +222,7 @@ lemmaSw[]
             (（ f ∙ g ） （ （ a ∙ b ）ₐ d ∙ f ） （ a ∙ b ） M) [ （ a ∙ b ）ₐ c ≔ （ a ∙ b ） N ]
          ∼⟨ lemmaSubst2 (（ f ∙ g ） （ （ a ∙ b ）ₐ d ∙ f ） （ a ∙ b ） M) (（ a ∙ b ）ₐ c) (lemma#∼α f#（ab）N (g#（ab）N g∉vs)) ⟩
             (（ f ∙ g ） （ （ a ∙ b ）ₐ d ∙ f ） （ a ∙ b ） M) [ （ a ∙ b ）ₐ c ≔ （ f ∙ g ） （ a ∙ b ） N ]
-         ≈⟨ cong (λ x → (（ f ∙ g ） （ （ a ∙ b ）ₐ d ∙ f ） （ a ∙ b ） M) [ x ≔ （ f ∙ g ） （ a ∙ b ） N ]) ( sym (lemma∙ₐc≢a∧c≢b (sym≢ f≢（ab）c) (sym≢ (g≢（ab）c g∉vs))))  ⟩
+         ≈⟨ cong (λ x → (（ f ∙ g ） （ （ a ∙ b ）ₐ d ∙ f ） （ a ∙ b ） M) [ x ≔ （ f ∙ g ） （ a ∙ b ） N ]) ( sym (lemma∙ₐc≢a∧c≢b (≢-sym f≢（ab）c) (≢-sym (g≢（ab）c g∉vs))))  ⟩
             (（ f ∙ g ） （ （ a ∙ b ）ₐ d ∙ f ） （ a ∙ b ） M) [ （ f ∙ g ）ₐ （ a ∙ b ）ₐ c ≔ （ f ∙ g ） （ a ∙ b ） N ]
          ∼⟨ σ (Ps[]M ((（ a ∙ b ）ₐ d , f) ∷ (a , b) ∷ []) f g (（ a ∙ b ）ₐ c) (（ a ∙ b ） N)) ⟩
            （  f            ∙ g ） ((（ （ a ∙ b ）ₐ d ∙         f      ） （ a ∙ b ） M) [ （ a ∙ b ）ₐ c ≔ （ a ∙ b ） N ])
@@ -318,9 +318,9 @@ lemmaƛ∼[] {a} {b} {P} M b∉a∷fvP
     ∎
   where
   a≢b : a ≢ b
-  a≢b = sym≢ (∉-∷⁼ (here refl) b∉a∷fvP)
+  a≢b = ≢-sym (∉-∷⁼ (here refl) b∉a∷fvP)
   a≢d : ∀ {d} → d ∉ (a ∷ fv P ++ fv M) → a ≢ d
-  a≢d d∉ = sym≢ (∉-∷⁼ (here refl) d∉)
+  a≢d d∉ = ≢-sym (∉-∷⁼ (here refl) d∉)
   d#M : ∀ {d} → d ∉ (a ∷ fv P ++ fv M) → d # M
   d#M d∉ = lemma∉fv→# (∉-++⁻ʳ (a ∷ fv P) d∉)
   d#P : ∀ {d} → d ∉ (a ∷ fv P ++ fv M) → d # P
@@ -333,7 +333,7 @@ lemmaƛ∼[] {a} {b} {P} M b∉a∷fvP
   b#P : b # P
   b#P = lemma∉fv→# (∉-++⁻ʳ [ a ] b∉a∷fvP)
   a≢c : a ≢ c
-  a≢c = sym≢ (∉-∷⁼ (here refl) c∉a∷fvP)
+  a≢c = ≢-sym (∉-∷⁼ (here refl) c∉a∷fvP)
 \end{code}
 
 
@@ -602,7 +602,7 @@ lemma#Subst {x} {y} {M} {N}
   lemmav {x} {y} a x#ƛya x#N with y ≟ₐ a
   lemmav {x} {y} .y x#ƛyy x#N
       | yes refl  = x#N
-  lemmav {x} .{x} a #ƛ≡           x#N | no x≢a  = #v (sym≢ x≢a)
+  lemmav {x} .{x} a #ƛ≡           x#N | no x≢a  = #v (≢-sym x≢a)
   lemmav {x} {y} a (#ƛ (#v a≢x))  x#N | no y≢a  = #v a≢x
   lemma· : (P Q : Λ) → Pred#Subst {x} {y} {N} P → Pred#Subst {x} {y} {N} Q → Pred#Subst {x} {y} {N} (P · Q)
   lemma· P Q hiP hiQ x#ƛyPQ x#N = #· (hiP (proj₁ (lemma# x#ƛyPQ)) x#N) (hiQ (proj₂ (lemma# x#ƛyPQ)) x#N)

@@ -338,7 +338,7 @@ thm-proof {β} {N} {M} (acc accβ) =
     hiM : M [ x ≔ N ] ↓
     hiM = (proj₁ thmM) Γ,y:γ‚x∶β⊢M:α Γ,y:γ⊢N∶β NfM N↓
     （ƛyM）[x≔N]~ƛy（M[x≔N]） : (ƛ y M) [ x ≔ N ] ∼α ƛ y (M [ x ≔ N ])
-    （ƛyM）[x≔N]~ƛy（M[x≔N]） = lemmaƛ∼[] M (∉-∷⁺ (sym≢ x≢y) y∉fvN ) -- y∉x∷fvN
+    （ƛyM）[x≔N]~ƛy（M[x≔N]） = lemmaƛ∼[] M (∉-∷⁺ (≢-sym x≢y) y∉fvN ) -- y∉x∷fvN
 
   lemma2-abs :(M : Λ)(y : Atom)
     → (y ∉l  fv N)

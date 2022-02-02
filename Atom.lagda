@@ -35,9 +35,6 @@ record Chi : Set where
 %</swap>
 
 \begin{code}
-sym≢ : {a b : Atom} → a ≢ b → b ≢ a
-sym≢ a≢b b≡a = ⊥-elim (a≢b (sym b≡a))
---
 lemma∙ₐ :  ∀ a b c →
            (c ≡ a ∧           （ a ∙ b ）ₐ c ≡ b)  ∨
            (c ≡ b ∧  c ≢ a ∧  （ a ∙ b ）ₐ c ≡ a)  ∨
@@ -199,7 +196,7 @@ lemma∙ₐdistributive a  b  .b  .b  .a  | .a | inj₂ (inj₂ (a≢b   , _ , r
   = sym (lemma（aa）b≡b)
 lemma∙ₐdistributive a  b  .b  d  .a  | .a | inj₂ (inj₂ (a≢b   , a≢d , refl)) | .b | inj₁ (refl , refl) | .a | inj₂ (inj₁ (refl , c≢a , refl))
   | .d | inj₂ (inj₂ (d≢a , d≢b , refl))
-  = sym (lemma∙ₐc≢a∧c≢b (sym≢ a≢b) (sym≢ d≢b))
+  = sym (lemma∙ₐc≢a∧c≢b (≢-sym a≢b) (≢-sym d≢b))
 lemma∙ₐdistributive a  b  c  d  .a  | .a | inj₂ (inj₂ (a≢c   , a≢d , refl)) | .b | inj₁ (refl , refl) | .c | inj₂ (inj₂ (c≢b , c≢a , refl))
   with （ a ∙ b ）ₐ d | lemma∙ₐ a b d
 lemma∙ₐdistributive a  b  c  d  .a  | .a | inj₂ (inj₂ (a≢c   , a≢d , refl)) | .b | inj₁ (refl , refl) | .c | inj₂ (inj₂ (c≢b , c≢a , refl))
@@ -207,10 +204,10 @@ lemma∙ₐdistributive a  b  c  d  .a  | .a | inj₂ (inj₂ (a≢c   , a≢d ,
   = ⊥-elim (a≢d (sym d≡a))
 lemma∙ₐdistributive a  b  c  .b  .a  | .a | inj₂ (inj₂ (a≢c   , a≢b , refl)) | .b | inj₁ (refl , refl) | .c | inj₂ (inj₂ (c≢a , c≢b , refl))
   | .a | inj₂ (inj₁ (refl , _ , refl))
-  = sym (lemma∙ₐc≢a∧c≢b (sym≢ c≢b) (sym≢ a≢b))
+  = sym (lemma∙ₐc≢a∧c≢b (≢-sym c≢b) (≢-sym a≢b))
 lemma∙ₐdistributive a  b  c  d  .a  | .a | inj₂ (inj₂ (a≢c   , a≢d , refl)) | .b | inj₁ (refl , refl) | .c | inj₂ (inj₂ (c≢a , c≢b , refl))
   | .d | inj₂ (inj₂ (d≢a , d≢b , refl))
-  = sym (lemma∙ₐc≢a∧c≢b (sym≢ c≢b) (sym≢ d≢b))
+  = sym (lemma∙ₐc≢a∧c≢b (≢-sym c≢b) (≢-sym d≢b))
 lemma∙ₐdistributive a  b  c  d  .b  | .b | inj₂ (inj₂ (b≢c   , b≢d , refl)) | .a | inj₂ (inj₁ (refl , b≢a , refl))
   with （ a ∙ b ）ₐ c | lemma∙ₐ a b c
 lemma∙ₐdistributive a  b  .a  d  .b  | .b | inj₂ (inj₂ (_  , b≢d , refl)) | .a | inj₂ (inj₁ (refl , b≢a , refl))  | .b | inj₁ (refl , refl)
@@ -223,17 +220,17 @@ lemma∙ₐdistributive a  b  .a  d  .b  | .b | inj₂ (inj₂ (_  , b≢d , ref
   = ⊥-elim (b≢d (sym d≡b))
 lemma∙ₐdistributive a  b  .a  d  .b  | .b | inj₂ (inj₂ (_  , b≢d , refl)) | .a | inj₂ (inj₁ (refl , b≢a , refl))  | .b | inj₁ (refl , refl)
   | .d | inj₂ (inj₂ (d≢a , d≢b , refl))
-  = sym (lemma∙ₐc≢a∧c≢b (sym≢ b≢a) (sym≢ d≢a))
+  = sym (lemma∙ₐc≢a∧c≢b (≢-sym b≢a) (≢-sym d≢a))
 lemma∙ₐdistributive a  b  c  d  .b  | .b | inj₂ (inj₂ (b≢c   , b≢d , refl)) | .a | inj₂ (inj₁ (refl , b≢a , refl)) | _  | inj₂ (inj₁ (c≡b , _ , _))
   = ⊥-elim (b≢c (sym c≡b))
 lemma∙ₐdistributive a  b  c  d  .b  | .b | inj₂ (inj₂ (b≢c   , b≢d , refl)) | .a | inj₂ (inj₁ (refl , b≢a , refl)) | .c  |  inj₂ (inj₂ (c≢b , c≢a , refl))
   with （ a ∙ b ）ₐ d | lemma∙ₐ a b d
 lemma∙ₐdistributive a  b  c  .a  .b  | .b | inj₂ (inj₂ (b≢c   , _ , refl)) | .a | inj₂ (inj₁ (refl , b≢a , refl)) | .c  |  inj₂ (inj₂ (c≢a , c≢b , refl)) | .b | inj₁ (refl , refl)
-  = sym (lemma∙ₐc≢a∧c≢b (sym≢ c≢a) (sym≢ b≢a))
+  = sym (lemma∙ₐc≢a∧c≢b (≢-sym c≢a) (≢-sym b≢a))
 lemma∙ₐdistributive a  b  c  d  .b  | .b | inj₂ (inj₂ (b≢c   , b≢d , refl)) | .a | inj₂ (inj₁ (refl , b≢a , refl)) | .c  |  inj₂ (inj₂ (c≢b , c≢a , refl)) | _ | inj₂ (inj₁ (d≡b , _))
   = ⊥-elim (b≢d (sym d≡b))
 lemma∙ₐdistributive a  b  c  d  .b  | .b | inj₂ (inj₂ (b≢c   , b≢d , refl)) | .a | inj₂ (inj₁ (refl , b≢a , refl)) | .c  |  inj₂ (inj₂ (c≢a , c≢b , refl)) | .d | inj₂ (inj₂ (d≢a , d≢b , refl))
-  = sym (lemma∙ₐc≢a∧c≢b (sym≢ c≢a) (sym≢ d≢a))
+  = sym (lemma∙ₐc≢a∧c≢b (≢-sym c≢a) (≢-sym d≢a))
 lemma∙ₐdistributive a  b  c  d  e  | .e | inj₂ (inj₂ (e≢c   , e≢d , refl))  | .e | inj₂ (inj₂ (e≢a , e≢b , refl))
   with （ a ∙ b ）ₐ c | lemma∙ₐ a b c
 lemma∙ₐdistributive a  b  .a  d  e  | .e | inj₂ (inj₂ (_   , e≢d , refl))  | .e | inj₂ (inj₂ (e≢a , e≢b , refl))

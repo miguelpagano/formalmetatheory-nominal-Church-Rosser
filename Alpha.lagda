@@ -166,7 +166,7 @@ lemma∙cancel∼α {a} {b} {.b} {ƛ .b M} b#λdM  #ƛ≡       | no a≢b | no 
   | yes refl = ⊥-elim (b≢b refl)
 lemma∙cancel∼α {a} {b} {c} {ƛ .b M} b#λdM   (#ƛ c#M)  | no a≢b | no a≢c | no b≢c
   | yes refl
-  rewrite lemma∙ₐ（ab）b≡a {a} {b} | lemma∙ₐc≢a∧c≢b (sym≢ a≢b) b≢c | lemma∙ₐ（ab）b≡a {c} {b}
+  rewrite lemma∙ₐ（ab）b≡a {a} {b} | lemma∙ₐc≢a∧c≢b (≢-sym a≢b) b≢c | lemma∙ₐ（ab）b≡a {c} {b}
   = ∼αƛ (a ∷ b ∷ c ∷ Λ-atoms M) (λ  e e∉abc∷atomsM → lemma（ce）（cb）（ac）M∼α（ae）（ab）M e e∉abc∷atomsM)
   where
   lemma（ce）（cb）（ac）M∼α（ae）（ab）M : (e : Atom) → e ∉ a ∷ b ∷ c ∷ Λ-atoms M → （ c ∙ e ） （ c ∙ b ） （ a ∙ c ） M ∼α （ a ∙ e ） （ a ∙ b ） M
@@ -177,11 +177,11 @@ lemma∙cancel∼α {a} {b} {c} {ƛ .b M} b#λdM   (#ƛ c#M)  | no a≢b | no a�
          （ （ c ∙ e ）ₐ c ∙ （ c ∙ e ）ₐ b ） （ c ∙ e ） （ a ∙ c ） M
        ≈⟨ cong (λ x → （ x ∙ （ c ∙ e ）ₐ b ） （ c ∙ e ） （ a ∙ c ） M) (lemma∙ₐ（ab）a≡b {c} {e}) ⟩
          （ e ∙ （ c ∙ e ）ₐ b ） （ c ∙ e ） （ a ∙ c ） M
-       ≈⟨ cong (λ x → （ e ∙ x ） （ c ∙ e ） （ a ∙ c ） M) (lemma∙ₐc≢a∧c≢b b≢c (sym≢ (∉-∷⁼ b∈abc∷atomsM e∉abc∷atomsM))) ⟩
+       ≈⟨ cong (λ x → （ e ∙ x ） （ c ∙ e ） （ a ∙ c ） M) (lemma∙ₐc≢a∧c≢b b≢c (≢-sym (∉-∷⁼ b∈abc∷atomsM e∉abc∷atomsM))) ⟩
          （ e ∙ b ） （ c ∙ e ） （ a ∙ c ） M
        ∼⟨ lemma∼αEquiv [( e , b)] (lemma∙cancel∼α {a} {e} {c} (lemma∉→# {e} {M} (lemmaΛ-atoms e∉atomsM)) c#M) ⟩
          （ e ∙ b ） （ a ∙ e ）  M
-       ≈⟨ sym (cong (λ x → （ e ∙ x ） （ a ∙ e ） M) (lemma∙ₐc≢a∧c≢b (sym≢ a≢b) (sym≢ (∉-∷⁼ b∈abc∷atomsM e∉abc∷atomsM)))) ⟩
+       ≈⟨ sym (cong (λ x → （ e ∙ x ） （ a ∙ e ） M) (lemma∙ₐc≢a∧c≢b (≢-sym a≢b) (≢-sym (∉-∷⁼ b∈abc∷atomsM e∉abc∷atomsM)))) ⟩
          （ e ∙ （ a ∙ e ）ₐ b ） （ a ∙ e ）  M
        ≈⟨ sym (cong (λ x → （ x ∙ （ a ∙ e ）ₐ b ） （ a ∙ e ）  M) (lemma∙ₐ（ab）a≡b {a} {e})) ⟩
          （ （ a ∙ e ）ₐ a ∙ （ a ∙ e ）ₐ b ） （ a ∙ e ）  M
@@ -198,7 +198,7 @@ lemma∙cancel∼α {a} {b} {c} {ƛ d M} b#λdM c#λdM | no a≢b | no a≢c | n
 lemma∙cancel∼α {a} {b} {.b} {ƛ .b M} #ƛ≡ c#λcM      | no a≢b | no a≢d | no _ | no b≢b
   | yes refl = ⊥-elim (b≢b refl)
 lemma∙cancel∼α {a} {b} {c} {ƛ .c M} (#ƛ b#M) c#λcM  | no a≢b | no a≢c | no _ | no b≢c
-  | yes refl rewrite lemma∙ₐ（ab）b≡a {a} {c} | lemma∙ₐc≢a∧c≢b a≢c a≢b | lemma∙ₐc≢a∧c≢b (sym≢ a≢c) (sym≢ b≢c)
+  | yes refl rewrite lemma∙ₐ（ab）b≡a {a} {c} | lemma∙ₐc≢a∧c≢b a≢c a≢b | lemma∙ₐc≢a∧c≢b (≢-sym a≢c) (≢-sym b≢c)
   = ∼αƛ (a ∷ b ∷ c ∷ Λ-atoms M) (λ e e∉abc∷atomsM → lemma（ae）（cb）（ac）M∼α（ce）（ab）M e e∉abc∷atomsM)
   where
   lemma（ae）（cb）（ac）M∼α（ce）（ab）M : (e : Atom) → e ∉ a ∷ b ∷ c ∷ Λ-atoms M → （ a ∙ e ） （ c ∙ b ） （ a ∙ c ） M ∼α （ c ∙ e ） （ a ∙ b ） M
@@ -215,11 +215,11 @@ lemma∙cancel∼α {a} {b} {c} {ƛ .c M} (#ƛ b#M) c#λcM  | no a≢b | no a≢
          （ （ a ∙ e ）ₐ a ∙ （ a ∙ e ）ₐ b ） （ a ∙ e ） （ c ∙ b ）  M
        ≈⟨ cong (λ x → （ x ∙ （ a ∙ e ）ₐ b ） （ a ∙ e ） （ c ∙ b ）  M) (lemma∙ₐ（ab）a≡b {a} {e})  ⟩
          （ e ∙ （ a ∙ e ）ₐ b ） （ a ∙ e ） （ c ∙ b ）  M
-       ≈⟨ cong (λ x → （ e ∙ x ） （ a ∙ e ） （ c ∙ b ）  M) (lemma∙ₐc≢a∧c≢b (sym≢ a≢b) ((sym≢ (∉-∷⁼ b∈abc∷atomsM e∉abc∷atomsM))))  ⟩
+       ≈⟨ cong (λ x → （ e ∙ x ） （ a ∙ e ） （ c ∙ b ）  M) (lemma∙ₐc≢a∧c≢b (≢-sym a≢b) ((≢-sym (∉-∷⁼ b∈abc∷atomsM e∉abc∷atomsM))))  ⟩
          （ e ∙ b ） （ a ∙ e ） （ c ∙ b ）  M
        ≈⟨ lemma∙distributive {e} {b} {a} {e} {（ c ∙ b ）  M}  ⟩
          （ （ e ∙ b ）ₐ a ∙ （ e ∙ b ）ₐ e ） （ e ∙ b ）  （ c ∙ b ）  M
-       ≈⟨ cong (λ x → （ x ∙ （ e ∙ b ）ₐ e ） （ e ∙ b ）  （ c ∙ b ）  M) (lemma∙ₐc≢a∧c≢b (sym≢ ((∉-∷⁼ (here refl) e∉abc∷atomsM))) a≢b)   ⟩
+       ≈⟨ cong (λ x → （ x ∙ （ e ∙ b ）ₐ e ） （ e ∙ b ）  （ c ∙ b ）  M) (lemma∙ₐc≢a∧c≢b (≢-sym ((∉-∷⁼ (here refl) e∉abc∷atomsM))) a≢b)   ⟩
          （ a ∙ （ e ∙ b ）ₐ e ） （ e ∙ b ）  （ c ∙ b ）  M
        ≈⟨ cong (λ x → （ a ∙ x ） （ e ∙ b ）  （ c ∙ b ）  M) (lemma∙ₐ（ab）a≡b {e} {b})  ⟩
          （ a ∙ b ） （ e ∙ b ）  （ c ∙ b ）  M
@@ -227,9 +227,9 @@ lemma∙cancel∼α {a} {b} {c} {ƛ .c M} (#ƛ b#M) c#λcM  | no a≢b | no a≢
          （ a ∙ b ） （ b ∙ e ）  （ c ∙ b ）  M
        ∼⟨ lemma∼αEquiv [(a , b)] (lemma∙cancel∼α {c} {e} {b} {M} (lemma∉→# {e} {M} (lemmaΛ-atoms e∉atomsM)) b#M) ⟩
          （ a ∙ b ） （ c ∙ e ）  M
-       ≈⟨ sym (cong (λ x → （ a ∙ x ） （ c ∙ e ）  M) (lemma∙ₐc≢a∧c≢b b≢c ((sym≢ (∉-∷⁼ b∈abc∷atomsM e∉abc∷atomsM))))) ⟩
+       ≈⟨ sym (cong (λ x → （ a ∙ x ） （ c ∙ e ）  M) (lemma∙ₐc≢a∧c≢b b≢c ((≢-sym (∉-∷⁼ b∈abc∷atomsM e∉abc∷atomsM))))) ⟩
          （ a ∙ （ c ∙ e ）ₐ b ） （ c ∙ e ）  M
-       ≈⟨ sym (cong (λ x → （ x ∙ （ c ∙ e ）ₐ b ） （ c ∙ e ）  M) (lemma∙ₐc≢a∧c≢b a≢c (sym≢ (∉-∷⁼ (here refl) e∉abc∷atomsM)))) ⟩
+       ≈⟨ sym (cong (λ x → （ x ∙ （ c ∙ e ）ₐ b ） （ c ∙ e ）  M) (lemma∙ₐc≢a∧c≢b a≢c (≢-sym (∉-∷⁼ (here refl) e∉abc∷atomsM)))) ⟩
          （ （ c ∙ e ）ₐ a ∙ （ c ∙ e ）ₐ b ） （ c ∙ e ）  M
        ≈⟨ sym (lemma∙distributive {c} {e} {a} {b} {M}) ⟩
          （ c ∙ e ） （ a ∙ b ） M
@@ -249,7 +249,7 @@ lemma∙cancel∼α {a} {b} {c} {ƛ .a M}   (#ƛ b#M)  (#ƛ c#M)  | no a≢b | n
   | no c≢a | yes refl rewrite lemma∙ₐ（ab）a≡b {a} {c} | lemma∙ₐ（ab）a≡b {c} {b} | lemma∙ₐ（ab）a≡b {a} {b}
   = lemma∼αƛ (lemma∙cancel∼α b#M c#M)
 lemma∙cancel∼α {a} {b} {c} {ƛ d M}   (#ƛ b#M)  (#ƛ c#M)  | no a≢b | no a≢c | no b≢c | no b≢d
-  | no c≢d | no a≢d rewrite lemma∙ₐc≢a∧c≢b (sym≢ a≢d) (sym≢ c≢d) | lemma∙ₐc≢a∧c≢b (sym≢ c≢d) (sym≢ b≢d) | lemma∙ₐc≢a∧c≢b (sym≢ a≢d) (sym≢ b≢d)
+  | no c≢d | no a≢d rewrite lemma∙ₐc≢a∧c≢b (≢-sym a≢d) (≢-sym c≢d) | lemma∙ₐc≢a∧c≢b (≢-sym c≢d) (≢-sym b≢d) | lemma∙ₐc≢a∧c≢b (≢-sym a≢d) (≢-sym b≢d)
   = lemma∼αƛ (lemma∙cancel∼α b#M c#M)
 --
 lemma∙cancel∼α' : {a b c : Atom}{M : Λ} → b # ƛ a M → c # M → （ c ∙ b ） （ a ∙ c ） M ∼α （ a ∙ b ） M
@@ -289,12 +289,12 @@ lemma∼α* {a} {ƛ b M} {ƛ c N}  (∼αƛ xs f)        (*ƛ a*M b≢a)
     (∉-++⁻ʳ (a ∷ b ∷ c ∷ []) (lemmaχ∉ Χ (a ∷ b ∷ c ∷ [] ++ xs ++ Λ-atoms N))) |
   (lemmaχ∉ Χ (a ∷ b ∷ c ∷ [] ++ xs ++ Λ-atoms N))
 ... | d | d∉xs | d∉abcxsN
-  with lemma*swap← (lemma∼α* (f d d∉xs) (lemma*swap→ a≢d (sym≢ b≢a) a*M))
+  with lemma*swap← (lemma∼α* (f d d∉xs) (lemma*swap→ a≢d (≢-sym b≢a) a*M))
   where
   a≢d : a ≢ d
   a≢d a≡d = d∉abcxsN (here (sym a≡d))
 lemma∼α* {a} {ƛ b M} {ƛ c N} (∼αƛ xs f) (*ƛ a*M b≢a)
-  | d | d∉xs | d∉abcxsN | inj₁ (a≢c , _ , a*N)     = *ƛ a*N (sym≢ a≢c)
+  | d | d∉xs | d∉abcxsN | inj₁ (a≢c , _ , a*N)     = *ƛ a*N (≢-sym a≢c)
 lemma∼α* {a} {ƛ b M} {ƛ c N} (∼αƛ xs f) (*ƛ a*M b≢a)
   | d | d∉xs | d∉abcxsN | inj₂ (inj₁ (a≡c , d*N))  = ⊥-elim ((¬d*N) d*N)
   where
@@ -429,7 +429,7 @@ lemma#∼α {a} {b} {ƛ .b M} (#ƛ a#M) (#ƛ b#M)
   |       lemma∙comm {a} {b} {M}     = lemma∼αλ a#M
 lemma#∼α {a} {b} {ƛ c M}   a#ƛcM  b#ƛcM
   | no  a≢c | no b≢c
-  rewrite lemma∙ₐc≢a∧c≢b (sym≢ a≢c) (sym≢ b≢c)
+  rewrite lemma∙ₐc≢a∧c≢b (≢-sym a≢c) (≢-sym b≢c)
   = lemma∼αƛ (lemma#∼α (lemma#λ a≢c a#ƛcM) (lemma#λ b≢c b#ƛcM))
 \end{code}
 
