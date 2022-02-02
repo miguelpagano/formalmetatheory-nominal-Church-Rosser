@@ -38,8 +38,8 @@ open import Data.Nat as Nat hiding (_⊔_;_*_)
 infix 1 _⊢_∶_
 infix 4 （_∙_）ₗ_
 
-a≢b∧a≡c→c≢b : ∀ {A : Set} {a b c : A} → a ≢ b → a ≡ c → c ≢ b
-a≢b∧a≡c→c≢b a≢b refl = a≢b
+≢-respectsˡ-≡ : ∀ {A : Set} {a b c : A} → a ≢ b → a ≡ c → c ≢ b
+≢-respectsˡ-≡ {b = b} a≢b a≡c = respˡ (λ x y → x ≢ y) a≡c a≢b
 \end{code}
 
 \begin{code}
@@ -91,7 +91,7 @@ lemma（）∈ {a} {b} {x} {(.x ∶ α) ∷ Γ}   (here refl)
 lemma（）∈ {a} {b} {x} {(c ∶ α) ∷ Γ}   (there x≢（ab）c x∈（ab）Γ)
   = map+  (mapₓ id (λ {x≡b} → mapₓ (there (λ a≡c → ⊥-elim (x≢（ab）c (trans≡ x≡b (sym (lemma∙ₐc≡a a b c (sym a≡c))))) )) id))
           (map+  (mapₓ id (λ {x≡a} → mapₓ id (λ {b≢a} → mapₓ (there (λ b≡c → ⊥-elim (x≢（ab）c (trans≡ x≡a (sym (lemma∙ₐc≡b a b c (sym b≡c))))))) id)))
-                 (mapₓ id (λ {x≢b} → mapₓ id (λ {x≢a} → mapₓ (there (λ x≡c → ⊥-elim (x≢（ab）c (trans≡ x≡c (sym (lemma∙ₐc≢a∧c≢b (a≢b∧a≡c→c≢b x≢b x≡c) (a≢b∧a≡c→c≢b x≢a x≡c)))))))id))))
+                 (mapₓ id (λ {x≢b} → mapₓ id (λ {x≢a} → mapₓ (there (λ x≡c → ⊥-elim (x≢（ab）c (trans≡ x≡c (sym (lemma∙ₐc≢a∧c≢b (≢-respectsˡ-≡ x≢b x≡c) (≢-respectsˡ-≡ x≢a x≡c)))))))id))))
           (lemma（）∈ {a} {b} {x} {Γ} x∈（ab）Γ)
 
 lemma（）⊆ : {x y : Atom}{α : Type}{Γ : Cxt} → y ∉l dom Γ → (（ x ∙ y ）ₗ Γ) ‚ y ∶ α ⊆ Γ ‚ y ∶ α
